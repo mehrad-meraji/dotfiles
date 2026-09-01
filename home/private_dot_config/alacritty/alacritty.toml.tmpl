@@ -1,0 +1,45 @@
+general.import = ["~/.config/alacritty/theme.toml"]
+general.live_config_reload = true
+
+[env]
+TERM = "xterm-256color"
+
+[window]
+decorations = "Buttonless"
+dynamic_padding = true
+dynamic_title = true
+padding.x = 2
+
+[font]
+size = 14
+builtin_box_drawing = true
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrainsMono Nerd Font"
+style = "Bold Italic"
+
+[font.offset]
+x = 0
+y = 1
+
+[colors]
+draw_bold_text_with_bright_colors = false
+
+[selection]
+save_to_clipboard = true
+
+[terminal.shell]
+program = "{{- .homebrewPath -}}/bin/fish"
+

@@ -1,0 +1,7 @@
+[tools]
+node = "20.19.6"
+
+[settings]
+
+[settings.ruby]
+compile = false

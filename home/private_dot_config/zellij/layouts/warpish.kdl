@@ -1,0 +1,32 @@
+// Warp-ish layout: tab-bar top, left sidebar (strider), main workspace, status bar bottom.
+//
+//   ┌────────────────────────────────────────────┐
+//   │  tab-bar (1 row, borderless)               │
+//   ├──────────────┬─────────────────────────────┤
+//   │  sidebar     │  workspace                  │
+//   │  (strider)   │                             │
+//   │  22 cols     │  Alt-v / Alt-b to split     │
+//   ├──────────────┴─────────────────────────────┤
+//   │  status-bar (2 rows, borderless)           │
+//   └────────────────────────────────────────────┘
+//
+// Sidebar: plain shell pane by default. To add a plugin, replace the pane line with:
+//   pane size=22 name="sidebar" { plugin location="zellij:strider" }  — file explorer
+//   pane size=22 name="sidebar" { command "lazygit" }                 — git overview
+//   pane size=22 name="sidebar" { command "lf" }                      — lf file manager
+//
+// Resize sidebar: change `size=22` to any column count.
+
+layout {
+    pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+
+    pane split_direction="vertical" {
+        pane name="workspace"
+    }
+
+    pane size=2 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+}

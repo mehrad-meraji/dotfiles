@@ -1,0 +1,65 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "features": {
+    "edit_prediction_provider": "copilot"
+  },
+  "edit_predictions": {
+    "mode": "subtle"
+  },
+  "language_models": {
+    "ollama": {
+      "api_url": "http://100.106.225.94:11434"
+    }
+  },
+  "ui_font_family": ".ZedSans",
+  "relative_line_numbers": "wrapped",
+  "context_servers": {
+    "mcp-server-mui": {
+      "enabled": false,
+      "settings": {
+        "preferred_theme": "light",
+        "component_filter": [""],
+      },
+    },
+    "herd": {
+      "enabled": true,
+      "command": "php",
+      "args": ["/Applications/Herd.app/Contents/Resources/herd-mcp.phar"],
+    },
+    "laravel-boost": {
+      "env": {},
+      "enabled": true,
+      "command": "php",
+      "args": [
+        "/Users/mehrad/projects/meh-labs/taskscape/artisan",
+        "boost:mcp"
+      ],
+    },
+  },
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "agent": {
+    "default_profile": "write",
+    "always_allow_tool_actions": true,
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "gpt-4.1",
+    },
+    "model_parameters": [],
+  },
+  "vim_mode": true,
+  "base_keymap": "JetBrains",
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "Catppuccin Macchiato",
+  },
+}

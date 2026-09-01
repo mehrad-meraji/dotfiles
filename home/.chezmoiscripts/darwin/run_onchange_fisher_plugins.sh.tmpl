@@ -1,0 +1,32 @@
+#!{{ lookPath "fish" }}
+# shellcheck disable=SC1009,SC1073,SC1072,SC1083
+
+# fish plugins hash: {{ include (joinPath .chezmoi.sourceDir ".chezmoidata/fisher-plugins.toml") | sha256sum }}
+
+# Ensure fisher is installed (idempotent)
+if not functions -q fisher
+  echo "[fisher] Installing fisher (plugin manager)..."
+  if not type -q curl
+    echo "[fisher] curl missing; cannot install fisher. Aborting plugin setup." >&2
+    exit 0
+  end
+  curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source; and fisher install jorgebucaran/fisher
+  if not functions -q fisher
+    echo "[fisher] Install failed; aborting." >&2
+    exit 1
+  end
+end
+
+# Optional: update existing plugins metadata silently
+if functions -q fisher
+  fisher update >/dev/null 2>&1
+end
+
+# Install declared plugins
+{{ range .fisher.plugins }}
+if functions -q fisher
+  set plugin "{{ . }}"
+  echo "[fisher] Installing plugin: $plugin"
+  fisher install "$plugin" || echo "[fisher] Warning: failed to install $plugin" >&2
+end
+{{ end }}

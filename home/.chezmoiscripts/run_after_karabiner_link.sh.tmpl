@@ -1,0 +1,9 @@
+#!/bin/bash
+# Karabiner is managed as a chezmoi external in .chezmoiexternal.toml
+# This script only creates the symlink from ~/karabiner to ~/.config/karabiner
+
+# Create symlink if karabiner exists and config directory doesn't
+if [[ -d ~/karabiner && ! -e ~/.config/karabiner ]]; then
+  ln -sf ~/karabiner ~/.config/karabiner
+fi
+

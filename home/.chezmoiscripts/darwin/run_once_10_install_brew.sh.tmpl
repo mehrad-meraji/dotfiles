@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+{{- if not (lookPath "brew") }}
+  HOMEBREW_INSTALLER_URL='https://raw.githubusercontent.com/Homebrew/install/master/install.sh'
+	NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL "$HOMEBREW_INSTALLER_URL")"
+{{ end }}

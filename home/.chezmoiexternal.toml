@@ -1,0 +1,28 @@
+[".tmux/plugins/tpm"]
+type = "git-repo"
+url = "https://github.com/tmux-plugins/tpm"
+refreshPeriod = "168h"
+
+[".config/tmux/plugins/catppuccin"]
+type = "archive"
+url = "https://github.com/catppuccin/tmux/archive/refs/tags/v2.1.2.tar.gz"
+exact = true
+stripComponents = 1
+refreshPeriod = "168h"
+
+["karabiner"]
+type = "git-repo"
+url = "https://github.com/mehrad-meraji/karabiner"
+refreshPeriod = "168h"
+
+["nvim"]
+type = "git-repo"
+url = "https://github.com/mehrad-meraji/nvim"
+refreshPeriod = "168h"
+
+
+# zellij-choose-tree plugin (session/tab/pane picker)
+[".config/zellij/plugins/zellij-choose-tree.wasm"]
+    type = "file"
+    url = "https://github.com/laperlej/zellij-choose-tree/releases/download/v0.4.2/zellij-choose-tree.wasm"
+    refreshPeriod = "168h"

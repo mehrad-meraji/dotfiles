@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Initialise rustup (installed via Homebrew) with stable toolchain + wasm target.
+# run_once_ means this only runs once per machine; delete
+# ~/.local/share/chezmoi/home/.chezmoiscripts/.run_once_... cache to re-run.
+
+set -euo pipefail
+
+RUSTUP="{{ .homebrewPath }}/bin/rustup"
+
+if [[ ! -x "$RUSTUP" ]]; then
+  echo "rustup not found at $RUSTUP — skipping"
+  exit 0
+fi
+
+"$RUSTUP" toolchain install stable --no-self-update 2>/dev/null || true
+"$RUSTUP" target add wasm32-wasip1
+
+echo "✓ rustup: stable + wasm32-wasip1 ready"

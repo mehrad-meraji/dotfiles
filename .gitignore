@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Editors / tooling state
+.idea/
+.superpowers/
+.claude/settings.local.json
+home/.claude/
+
+# Vendored deps that must never be committed
+home/private_dot_config/composer/vendor/

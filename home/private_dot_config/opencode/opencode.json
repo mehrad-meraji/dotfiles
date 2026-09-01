@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "jcodemunch": {
+      "command": "jcodemunch-mcp"
+    }
+    "Sketch": {
+      "type": "remote",
+      "url": "http://localhost:31126/mcp"
+    }
+  },
+  "tui": {
+    "scroll_speed": 3,
+    "scroll_acceleration": {
+      "enabled": true
+    },
+    "diff_style": "auto"
+  }
+}

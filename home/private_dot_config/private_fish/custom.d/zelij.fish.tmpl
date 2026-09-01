@@ -1,0 +1,6 @@
+if status is-interactive; and type -q zellij; and not set -q ZELLIJ
+    # Attach to (or create) a default "main" session so the shell never dies on
+    # an ambiguous multi-session attach. Switch between sessions/tabs/panes from
+    # inside zellij with Ctrl+o then t (zellij-choose-tree).
+    zellij attach --create main
+end

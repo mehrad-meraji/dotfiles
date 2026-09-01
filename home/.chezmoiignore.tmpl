@@ -1,0 +1,18 @@
+.oh-my-zsh/custom/**
+.config/github-copilot/versions.json
+!.config/nvim/.keep
+.config/nvim/**
+.ignorefiles/**
+.config/fish/fish_variables
+.symlinks/**
+.config/zed/prompts/**
+.config/alacritty/theme.toml
+
+{{- /* Machines without Bitwarden (work, servers): skip secret-backed files
+       instead of failing the whole apply. */}}
+{{ if not .hasSecrets }}
+.git-credentials
+.ssh/key_age
+.ssh/zippy-apple
+.ssh/heisenberg-isolate
+{{ end }}

@@ -1,0 +1,23 @@
+{{- $hasSecrets := and (lookPath "rbw") (not (env "CHEZMOI_NO_SECRETS")) -}}
+{{- $brewPrefix := "/opt/homebrew" -}}
+{{- if ne .chezmoi.arch "arm64" }}{{ $brewPrefix = "/usr/local" }}{{ end -}}
+
+cat = "bat --paging=never"
+pager = "bat"
+encryption = "age"
+
+[age]
+  identity = "~/.ssh/key_age"
+  recipient = "age1yds3tez2pyfda2nputpnd9vqqf6rm6al7a92rd82ah5mcflk4gds2jgdnd"
+
+[data]
+  homebrewPath = {{ $brewPrefix | quote }}
+  # false on machines without Bitwarden (work, servers). Secret-backed files are
+  # skipped instead of failing the whole apply. Force off with CHEZMOI_NO_SECRETS=1.
+  hasSecrets = {{ if $hasSecrets }}true{{ else }}false{{ end }}
+
+[data.github]
+  username = "mehrad-meraji"
+
+[rbw]
+  command = {{ (printf "%s/bin/rbw" $brewPrefix) | quote }}

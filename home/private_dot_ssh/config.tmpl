@@ -1,0 +1,5 @@
+{{- if eq .chezmoi.os "darwin" }}
+Host *
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/mehrad_rsa
+{{- end }}

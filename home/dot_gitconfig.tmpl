@@ -1,0 +1,17 @@
+[user]
+	name = Mehrad
+	email = mehrad.meraji@gmail.com
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[credential]
+	helper =
+{{- if .hasSecrets }}
+	helper = store
+{{- end }}
+{{- if stat "/usr/local/share/gcm-core/git-credential-manager" }}
+	helper = /usr/local/share/gcm-core/git-credential-manager
+{{- end }}
+[credential "https://dev.azure.com"]
+	useHttpPath = true

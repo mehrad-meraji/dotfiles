@@ -1,0 +1,5 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a black line between shell prompts
+add_newline = true
+

@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Request sudo password once at the beginning
+echo "🔐 Authenticating for Homebrew installations..."
+sudo -v || exit 1
+
+# Capture parent PID before entering subshell
+PARENT_PID=$$
+
+# Keep sudo timestamp updated in background
+(
+  while true; do
+    # Check if parent process still exists, exit if not
+    if ! kill -0 "$PARENT_PID" 2>/dev/null; then
+      exit 0
+    fi
+
+    # Refresh sudo timestamp (non-interactive)
+    sudo -n -v 2>/dev/null || exit 0
+
+    sleep 40
+  done
+) &
+SUDO_KEEPALIVE_PID=$!
+
+# Cleanup function to kill the keepalive process on exit
+cleanup() {
+  if [ -n "$SUDO_KEEPALIVE_PID" ]; then
+    # Kill the background keepalive process
+    kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+    # Wait for it to exit
+    wait "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT INT TERM HUP
+
+# --no-upgrade: install what is missing, do not upgrade everything else. Editing
+# one package should not trigger a full system upgrade. Run `brew upgrade` when
+# you actually want that.
+# NO_AUTO_UPDATE: skip the tap-metadata refresh on every internal brew call.
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+
+brew bundle --no-upgrade --file=/dev/stdin <<EOF
+{{ range .homebrew.taps -}}
+tap {{ . | quote }}
+{{ end -}}
+{{ range .homebrew.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .homebrew.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+EOF

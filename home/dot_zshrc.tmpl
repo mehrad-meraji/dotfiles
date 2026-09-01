@@ -1,0 +1,41 @@
+# Fallback shell. Fish is primary — see ~/.config/fish/.
+# Deliberately small: enough to work on any machine, no oh-my-zsh, no plugins.
+
+eval "$({{ .homebrewPath }}/bin/brew shellenv)"
+
+# Bun
+export BUN_INSTALL="{{ .chezmoi.homeDir }}/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+
+# pnpm
+export PNPM_HOME="$XDG_DATA_HOME/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Herd PHP
+export HERD_PHP_84_INI_SCAN_DIR="{{ .chezmoi.homeDir }}/Library/Application Support/Herd/config/php/84/"
+export PATH="{{ .chezmoi.homeDir }}/Library/Application Support/Herd/bin:$PATH"
+
+# tmux plugin manager
+export TMUX_PLUGIN_MANAGER_PATH="{{ .chezmoi.homeDir }}/.tmux/plugins/tpm"
+export PATH="$TMUX_PLUGIN_MANAGER_PATH/t-smart-tmux-session-manager/bin:$PATH"
+
+command -v mise     >/dev/null && eval "$(mise activate zsh)"
+command -v starship >/dev/null && eval "$(starship init zsh)"
+command -v zoxide   >/dev/null && eval "$(zoxide init zsh)"
+
+# fzf keybindings + completion
+[ -f {{ .homebrewPath }}/opt/fzf/shell/key-bindings.zsh ] && source {{ .homebrewPath }}/opt/fzf/shell/key-bindings.zsh
+[ -f {{ .homebrewPath }}/opt/fzf/shell/completion.zsh ]   && source {{ .homebrewPath }}/opt/fzf/shell/completion.zsh
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+
+alias n='nvim'
+alias b='bat'
+alias cz='chezmoi'
+alias lg='lazygit'
+alias l='eza -lh1s old --icons'
+alias ll='eza -lhs old --icons'
+alias la='eza -lahs old --icons'

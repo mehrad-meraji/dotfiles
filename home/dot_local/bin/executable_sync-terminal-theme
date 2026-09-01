@@ -1,0 +1,17 @@
+#!/bin/sh
+mode=$(defaults read -g AppleInterfaceStyle 2>/dev/null)
+if [ "$mode" = "Dark" ]; then
+  theme="catppuccin-mocha"
+else
+  theme="catppuccin-latte"
+fi
+
+# Alacritty: write theme import — live_config_reload picks it up immediately
+printf 'general.import = ["%s/.config/alacritty/%s.toml"]\n' "$HOME" "$theme" \
+  > "$HOME/.config/alacritty/theme.toml"
+
+# Zellij: update theme line — takes effect on next session
+cfg="$HOME/.config/zellij/config.kdl"
+if [ -f "$cfg" ]; then
+  sed -i '' "s/^theme \"catppuccin-[^\"]*\"/theme \"$theme\"/" "$cfg"
+fi

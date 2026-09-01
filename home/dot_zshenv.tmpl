@@ -1,0 +1,24 @@
+# Added by Toolbox App
+export PATH="$PATH:/usr/local/bin"
+
+export EDITOR='nvim'
+
+# Base directory relative to which user-specific data files should be stored.
+export XDG_DATA_HOME=$HOME/.local/share
+# Base directory relative to which user-specific configuration files should be stored.
+export XDG_CONFIG_HOME=$HOME/.config
+# Contains state data that should persist between (applications) restarts.
+# It may contain:
+# 		- Action hisotry (logs, history, recently used files, ...)
+#		- Current state of the application that can be reused on
+# 		  a restart (view, layout, open files, undo history, ...)
+export XDG_STATE_HOME=$HOME/.local/state
+export XDG_CACHE_HOME=$HOME/.cache
+
+export LDFLAGS="-L{{ .homebrewPath }}/opt/libpq/lib"
+export CPPFLAGS="-I{{ .homebrewPath }}/opt/libpq/include"
+export PKG_CONFIG_PATH="{{ .homebrewPath }}/opt/libpq/lib/pkgconfig"
+export PATH="{{ .homebrewPath }}/opt/libpq/bin:$PATH"
+export PATH="/Applications/Obsidian.app/Contents/MacOS:$PATH"
+
+export AGE_PUBLIC_KEY="age1yds3tez2pyfda2nputpnd9vqqf6rm6al7a92rd82ah5mcflk4gds2jgdnd"

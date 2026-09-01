@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Set fish as the default shell after it's installed
+# This runs once after homebrew packages are installed
+
+{{- if lookPath "fish" }}
+
+FISH_PATH=$(which fish)
+
+# Check if fish is already in /etc/shells
+if ! grep -q "$FISH_PATH" /etc/shells; then
+  echo "Adding fish to /etc/shells..."
+  echo "$FISH_PATH" | sudo tee -a /etc/shells
+fi
+
+# Check if fish is already the default shell
+if [ "$SHELL" != "$FISH_PATH" ]; then
+  echo "Setting fish as default shell..."
+  chsh -s "$FISH_PATH"
+  echo "✓ Fish is now your default shell. Restart your terminal to use it."
+else
+  echo "✓ Fish is already your default shell"
+fi
+
+{{- end }}
+

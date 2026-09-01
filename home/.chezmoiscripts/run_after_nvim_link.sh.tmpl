@@ -1,0 +1,33 @@
+#!/bin/bash
+# Nvim is managed as a chezmoi external in .chezmoiexternal.toml
+# This script creates the symlink and ensures proper directory ownership
+
+NVIM_DATA_DIR="{{ .chezmoi.homeDir }}/.local/share/nvim"
+NVIM_STATE_DIR="{{ .chezmoi.homeDir }}/.local/state/nvim"
+
+# Create nvim data directories with correct ownership before lazy.nvim runs
+mkdir -p "$NVIM_DATA_DIR"/{lazy,mason,site}
+
+# Create nvim state directories (blink.cmp frecency lives here)
+mkdir -p "$NVIM_STATE_DIR"/blink/cmp
+
+# Create symlink if nvim exists and config directory doesn't
+if [[ -d ~/nvim && ! -e ~/.config/nvim ]]; then
+  ln -sf ~/nvim ~/.config/nvim
+  echo "✓ Created symlink: ~/.config/nvim -> ~/nvim"
+fi
+
+# Ensure data and state directories are owned by current user (not root)
+for dir in "$NVIM_DATA_DIR" "$NVIM_STATE_DIR"/blink; do
+  if [[ -d "$dir" ]]; then
+    if [[ "$USER" != "root" && "$UID" != "0" ]]; then
+      if [[ -O "$dir" ]]; then
+        echo "✓ $dir has correct ownership"
+      else
+        echo "⚠ Warning: $dir is not owned by $USER"
+        echo "  Run: sudo chown -R $(whoami):staff $dir"
+      fi
+    fi
+  fi
+done
+
