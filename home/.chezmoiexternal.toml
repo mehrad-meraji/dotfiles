@@ -20,9 +20,3 @@ type = "git-repo"
 url = "https://github.com/mehrad-meraji/nvim"
 refreshPeriod = "168h"
 
-
-# zellij-choose-tree plugin (session/tab/pane picker)
-[".config/zellij/plugins/zellij-choose-tree.wasm"]
-    type = "file"
-    url = "https://github.com/laperlej/zellij-choose-tree/releases/download/v0.4.2/zellij-choose-tree.wasm"
-    refreshPeriod = "168h"

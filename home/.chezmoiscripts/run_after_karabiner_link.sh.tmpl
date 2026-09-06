@@ -1,3 +1,4 @@
+{{ if eq .machineRole "laptop" -}}
 #!/bin/bash
 # Karabiner is managed as a chezmoi external in .chezmoiexternal.toml
 # This script only creates the symlink from ~/karabiner to ~/.config/karabiner
@@ -6,4 +7,4 @@
 if [[ -d ~/karabiner && ! -e ~/.config/karabiner ]]; then
   ln -sf ~/karabiner ~/.config/karabiner
 fi
-
+{{ end -}}

@@ -1,64 +1,107 @@
+# Packages are split by machine role. `machineRole` is set at `chezmoi init`
+# (see .chezmoi.toml.tmpl) and picks which of laptop/server is merged on top
+# of shared.
+
 [homebrew]
 taps = []
+
+# ---------------------------------------------------------------- shared ----
+# Installed everywhere. Keep this list boring: shell, editor, core CLI.
+[homebrew.shared]
 brews = [
   "age",
-  "ansible",
-  "direnv",
   "bat",
-  "bat-extras",
-  "bitwarden-cli",
   "chezmoi",
-  "composer",
+  "direnv",
   "eza",
-  "ffmpeg",
-  "fish",
   "fd",
+  "fish",
   "fzf",
   "gh",
-  "gitleaks",
   "git",
   "gnupg",
   "htop",
-  "lazygit",
   "jq",
-  "libpq",
-  "mise",
   "neovim",
-  "nx",
-  "opencode",
-  "opentofu",
-  "pnpm",
-  "postgresql@14",
-  "rbw",
   "ripgrep",
-  "rustup",
-  "tmux",
   "starship",
-  "zellij",
+  "tmux",
+  "watch",
   "zoxide",
   "zsh",
 ]
 casks = [
+  "font-jetbrains-mono-nerd-font",
+  "orbstack",
+]
+
+# ---------------------------------------------------------------- laptop ----
+[homebrew.laptop]
+brews = [
+  "ansible",
+  "bat-extras",
+  "bitwarden-cli",
+  "composer",
+  "doctl",
+  "ffmpeg",
+  "gitleaks",
+  "lazygit",
+  "libpq",
+  "mise",
+  "nx",
+  "opencode",
+  "opentofu",
+  "php@8.4",
+  "pinentry-mac",
+  "pipx",
+  "pnpm",
+  "python@3.11",
+  "railway",
+  "rbw",
+  "rclone",
+  "rustup",
+  "yt-dlp",
+]
+casks = [
   "alacritty",
+  "antigravity",
   "appcleaner",
   "bitwarden",
-  "dbngin",
+  "blender",
+  "claude",
+  "cursor",
+  "discord",
+  "duckduckgo",
   "figma",
-  "font-jetbrains-mono-nerd-font",
   "git-credential-manager",
   "google-chrome",
+  "herd",
   "karabiner-elements",
+  "lm-studio",
   "logi-options+",
   "obsidian",
   "ollama-app",
   "raycast",
+  "rustdesk",
   "sf-symbols",
   "signal",
   "sketch",
   "slack",
   "stats",
+  "syncthing",
   "tailscale-app",
   "vlc",
   "webpquicklook",
   "zed",
+  "zen-browser",
+  "zoom",
 ]
+
+# ---------------------------------------------------------------- server ----
+[homebrew.server]
+brews = [
+  "cloudflared",
+  "restic",
+  "tailscale",
+]
+casks = []

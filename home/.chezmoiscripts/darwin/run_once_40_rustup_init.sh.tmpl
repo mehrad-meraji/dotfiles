@@ -1,3 +1,4 @@
+{{ if eq .machineRole "laptop" -}}
 #!/usr/bin/env bash
 # Initialise rustup (installed via Homebrew) with stable toolchain + wasm target.
 # run_once_ means this only runs once per machine; delete
@@ -16,3 +17,4 @@ fi
 "$RUSTUP" target add wasm32-wasip1
 
 echo "✓ rustup: stable + wasm32-wasip1 ready"
+{{ end -}}

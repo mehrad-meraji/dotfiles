@@ -41,14 +41,21 @@ trap cleanup EXIT INT TERM HUP
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 
+{{ $role := index .homebrew .machineRole }}
 brew bundle --no-upgrade --file=/dev/stdin <<EOF
 {{ range .homebrew.taps -}}
 tap {{ . | quote }}
 {{ end -}}
-{{ range .homebrew.brews -}}
+{{ range .homebrew.shared.brews -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range .homebrew.casks -}}
+{{ range $role.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .homebrew.shared.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+{{ range $role.casks -}}
 cask {{ . | quote }}
 {{ end -}}
 EOF

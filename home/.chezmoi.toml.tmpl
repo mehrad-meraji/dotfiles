@@ -1,4 +1,5 @@
-{{- $hasSecrets := and (lookPath "rbw") (not (env "CHEZMOI_NO_SECRETS")) -}}
+{{- $machineRole := promptStringOnce . "machineRole" "Machine role (laptop/server)" "laptop" -}}
+{{- $hasSecrets := and (eq $machineRole "laptop") (lookPath "rbw") (not (env "CHEZMOI_NO_SECRETS")) -}}
 {{- $brewPrefix := "/opt/homebrew" -}}
 {{- if ne .chezmoi.arch "arm64" }}{{ $brewPrefix = "/usr/local" }}{{ end -}}
 
@@ -12,6 +13,9 @@ encryption = "age"
 
 [data]
   homebrewPath = {{ $brewPrefix | quote }}
+  # "laptop" or "server". Picks the homebrew package set and gates the
+  # server-only scripts. Asked once at `chezmoi init`.
+  machineRole = {{ $machineRole | quote }}
   # false on machines without Bitwarden (work, servers). Secret-backed files are
   # skipped instead of failing the whole apply. Force off with CHEZMOI_NO_SECRETS=1.
   hasSecrets = {{ if $hasSecrets }}true{{ else }}false{{ end }}
