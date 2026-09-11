@@ -45,6 +45,7 @@ brews = [
   "doctl",
   "ffmpeg",
   "gitleaks",
+  "go",
   "lazygit",
   "libpq",
   "mise",
