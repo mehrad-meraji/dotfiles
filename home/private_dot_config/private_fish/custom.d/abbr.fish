@@ -10,11 +10,6 @@ abbr -a -- cze 'chezmoi edit'
 abbr -a -- czbrew 'nvim $XDG_DATA_HOME/chezmoi/home/.chezmoidata/homebrew-packages.toml'
 abbr -a -- cza 'chezmoi apply'
 
-# Quick directory navigation
-abbr -a -- .. 'cd ..'
-abbr -a -- ... 'cd ../..'
-abbr -a -- .... 'cd ../../..'
-
 # Git shortcuts
 abbr -a -- ga 'git add'
 abbr -a -- gc 'git commit'
