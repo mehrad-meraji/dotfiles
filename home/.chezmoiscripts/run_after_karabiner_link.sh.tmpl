@@ -1,7 +1,11 @@
 {{ if eq .machineRole "laptop" -}}
 #!/bin/bash
-# Karabiner is managed as a chezmoi external in .chezmoiexternal.toml
-# This script only creates the symlink from ~/karabiner to ~/.config/karabiner
+# Karabiner rewrites karabiner.json itself, so chezmoi only clones the repo once.
+# After that, commit and pull ~/karabiner with git yourself.
+
+if [[ ! -e ~/karabiner ]]; then
+  git clone https://github.com/mehrad-meraji/karabiner ~/karabiner
+fi
 
 # Create symlink if karabiner exists and config directory doesn't
 if [[ -d ~/karabiner && ! -e ~/.config/karabiner ]]; then

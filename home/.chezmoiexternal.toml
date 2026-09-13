@@ -10,11 +10,6 @@ exact = true
 stripComponents = 1
 refreshPeriod = "168h"
 
-["karabiner"]
-type = "git-repo"
-url = "https://github.com/mehrad-meraji/karabiner"
-refreshPeriod = "168h"
-
 ["nvim"]
 type = "git-repo"
 url = "https://github.com/mehrad-meraji/nvim"
