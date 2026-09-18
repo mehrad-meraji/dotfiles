@@ -1,0 +1,114 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__pencil"
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "opus[1m]",
+  "skillOverrides": {
+    "grill-me": "off",
+    "react-doctor": "off"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": false,
+    "vercel-plugin@vercel-vercel-plugin": false,
+    "clangd-lsp@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": true,
+    "warp@claude-code-warp": false,
+    "ponytail@ponytail": true,
+    "onac@onac": true
+  },
+  "extraKnownMarketplaces": {
+    "vercel-vercel-plugin": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/mehrad/.cache/plugins/github.com-vercel-vercel-plugin"
+      }
+    },
+    "claude-code-warp": {
+      "source": {
+        "source": "github",
+        "repo": "warpdotdev/claude-code-warp"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "onac": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/mehrad/Projects/OAC"
+      }
+    }
+  },
+  "outputStyle": "ELI",
+  "effortLevel": "medium",
+  "advisorModel": "fable",
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "theme": "light",
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(npx tsx scripts/seed-starlink-secret-payout.ts:*) — sensitive-looking seed script name, confirm contents/intent before running"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: Vercel (deploy target, per .env.example); Neon (Postgres, per .env.example)",
+      "**Repository visibility**: Private — mehrad-meraji/provincial-receipts (confirmed via gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: Local `.env` (gitignored) + Vercel dashboard Environment Variables; secrets referenced include DATABASE_URL, GITHUB_TOKEN, ANTHROPIC_API_KEY, BROWSERBASE_API_KEY/PROJECT_ID, CRON_SECRET, NEWS_API_KEY, CLERK keys, TURNSTILE keys, TRIGGER_SECRET_KEY, API_KEY",
+      "**Default / protected branches**: Default branch `main`; no protected branches listed and rulesets not queryable here — do not assume unprotected",
+      "**CI/CD deploy targets**: Vercel (per .env.example comments referencing Vercel dashboard and deployment URL)",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo (mehrad-meraji/provincial-receipts) and its origin remote only (github.com/mehrad-meraji/provincial-receipts) — no additional orgs configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: Neon (Postgres), Clerk (auth), Cloudflare Turnstile (CAPTCHA), Trigger.dev (background jobs), Browserbase (headless browser), NewsAPI, GitHub Models — all per .env.example, scoped to this project",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: `.env` (gitignored, holds live credentials); `scripts/seed-starlink-secret-payout.ts` (flagged sensitive-looking path — treat contents as needing care until reviewed); admin-only editorial content pending moderation (published: false records) — share only with cleared audiences",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development — civic accountability dashboard (fuckdougford / provincial-receipts), including seed-script generation for scandals, people, and companies via the add-scandal skill",
+      "**Trusted repo**: mehrad-meraji/provincial-receipts (private) and its origin remote — confidential material is fine to commit here, but secrets and sensitive personal/entrusted data are never cleared into it by visibility alone",
+      "**Org-specific CLIs**: None configured",
+      "**routine under scripts/ prefix**: seed script creation and execution (`npx tsx scripts/seed-*.ts`) is routine per the add-scandal skill workflow, scoped to this repo's `scripts/` directory"
+    ]
+  },
+  "mcpServers": {
+    "jcodemunch": {
+      "command": [
+        "jcodemunch-mcp"
+      ]
+    },
+    "plane": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@makeplane/plane-mcp-server@latest"
+      ],
+      "env": {
+        "PLANE_API_KEY": "{{ if .hasSecrets }}{{ (rbw "plane-api-key").data.password }}{{ end }}",
+        "PLANE_BASE_URL": "https://taskscape.ca/api/v1",
+        "PLANE_WORKSPACE_SLUG": "meh-labs"
+      }
+    }
+  }
+}

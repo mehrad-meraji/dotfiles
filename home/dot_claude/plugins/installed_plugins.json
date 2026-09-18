@@ -1,0 +1,82 @@
+{
+  "version": 2,
+  "plugins": {
+    "superpowers@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/superpowers/6.3.0",
+        "version": "6.3.0",
+        "installedAt": "2026-03-26T02:25:33.830Z",
+        "lastUpdated": "2026-08-15T12:59:30.072Z",
+        "gitCommitSha": "eafe962b18f6c5dc70fb7c8cc7e83e61f4cdde06"
+      }
+    ],
+    "swift-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/swift-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-03-28T14:31:42.981Z",
+        "lastUpdated": "2026-03-28T14:31:42.981Z"
+      }
+    ],
+    "vercel-plugin@vercel-vercel-plugin": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/vercel-vercel-plugin/vercel-plugin/0.25.0",
+        "version": "0.25.0",
+        "installedAt": "2026-04-01T01:20:02.476Z",
+        "lastUpdated": "2026-04-01T01:20:02.476Z",
+        "gitCommitSha": "7807a6aabad5bbb118d989252cade51313efb0e4"
+      }
+    ],
+    "clangd-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/clangd-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-05-06T14:24:01.769Z",
+        "lastUpdated": "2026-05-06T14:24:01.769Z"
+      }
+    ],
+    "frontend-design@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/frontend-design/ea0a38e1d671",
+        "version": "ea0a38e1d671",
+        "installedAt": "2026-05-13T14:43:15.561Z",
+        "lastUpdated": "2026-09-17T12:04:02.261Z",
+        "gitCommitSha": "72a63d5d082937f3af121354e0c168bee1be4b56"
+      }
+    ],
+    "warp@claude-code-warp": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-code-warp/warp/2.1.0",
+        "version": "2.1.0",
+        "installedAt": "2026-05-23T13:53:52.902Z",
+        "lastUpdated": "2026-05-23T13:53:52.902Z",
+        "gitCommitSha": "bb6c1cf2f5cd7eb609678a2b175e7f4504ca61c2"
+      }
+    ],
+    "ponytail@ponytail": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/ponytail/ponytail/4.7.0",
+        "version": "4.7.0",
+        "installedAt": "2026-06-21T12:46:05.171Z",
+        "lastUpdated": "2026-06-21T12:46:05.171Z",
+        "gitCommitSha": "6da37bfa7d0282522c7785759f4d2f1544015354"
+      }
+    ],
+    "onac@onac": [
+      {
+        "scope": "user",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/onac/onac/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-09-02T20:56:48.019Z",
+        "lastUpdated": "2026-09-02T20:56:48.019Z"
+      }
+    ]
+  }
+}

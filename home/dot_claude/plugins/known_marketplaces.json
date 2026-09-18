@@ -1,0 +1,42 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/mehrad/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-09-17T12:04:02.175Z"
+  },
+  "vercel-vercel-plugin": {
+    "source": {
+      "source": "directory",
+      "path": "/Users/mehrad/.cache/plugins/github.com-vercel-vercel-plugin"
+    },
+    "installLocation": "/Users/mehrad/.cache/plugins/github.com-vercel-vercel-plugin",
+    "lastUpdated": "2026-04-01T01:19:57.803Z"
+  },
+  "claude-code-warp": {
+    "source": {
+      "source": "github",
+      "repo": "warpdotdev/claude-code-warp"
+    },
+    "installLocation": "/Users/mehrad/.claude/plugins/marketplaces/claude-code-warp",
+    "lastUpdated": "2026-05-23T13:53:52.381Z"
+  },
+  "ponytail": {
+    "source": {
+      "source": "github",
+      "repo": "DietrichGebert/ponytail"
+    },
+    "installLocation": "/Users/mehrad/.claude/plugins/marketplaces/ponytail",
+    "lastUpdated": "2026-06-21T12:45:43.546Z"
+  },
+  "onac": {
+    "source": {
+      "source": "directory",
+      "path": "/Users/mehrad/Projects/OAC"
+    },
+    "installLocation": "/Users/mehrad/Projects/OAC",
+    "lastUpdated": "2026-09-02T20:56:44.129Z"
+  }
+}
