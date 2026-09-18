@@ -101,6 +101,9 @@ casks = [
 [homebrew.server]
 brews = [
   "cloudflared",
+  "colima",
+  "docker",
+  "docker-compose",
   "restic",
   "tailscale",
 ]
