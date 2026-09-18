@@ -32,7 +32,6 @@ brews = [
 ]
 casks = [
   "font-jetbrains-mono-nerd-font",
-  "orbstack",
 ]
 
 # ---------------------------------------------------------------- laptop ----
