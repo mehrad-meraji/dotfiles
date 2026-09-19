@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Set fish as the default shell.
+# after_: runs once the brewfile script has installed fish. Check at run time,
+# not with lookPath at template time: on a fresh Mac fish is not there yet
+# when the template renders, so the script came out empty and never ran.
+
+FISH_PATH={{ .homebrewPath }}/bin/fish
+[ -x "$FISH_PATH" ] || { echo "fish not installed, skipping default shell"; exit 0; }
+
+# Check if fish is already in /etc/shells
+if ! grep -q "$FISH_PATH" /etc/shells; then
+  echo "Adding fish to /etc/shells..."
+  echo "$FISH_PATH" | sudo tee -a /etc/shells
+fi
+
+# Check if fish is already the default shell
+if [ "$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')" != "$FISH_PATH" ]; then
+  echo "Setting fish as default shell..."
+  # sudo: reuses the password from the earlier scripts; plain chsh asks again.
+  sudo chsh -s "$FISH_PATH" "$USER"
+  echo "✓ Fish is now your default shell. Restart your terminal to use it."
+else
+  echo "✓ Fish is already your default shell"
+fi
