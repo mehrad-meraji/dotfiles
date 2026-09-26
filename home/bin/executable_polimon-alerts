@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Print PoliMon alerts without exposing the API token to the caller.
+# Usage: polimon-alerts YYYY-MM-DD [source]   e.g. polimon-alerts 2026-09-24 ontario_ero
+set -euo pipefail
+
+since="${1:?usage: polimon-alerts YYYY-MM-DD [source]}"
+[[ "$since" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "bad date: $since" >&2; exit 2; }
+source_arg="${2:-}"
+[[ -z "$source_arg" || "$source_arg" =~ ^[a-z0-9_]+$ ]] || { echo "bad source: $source_arg" >&2; exit 2; }
+
+# ponytail: tries the likely variable names; add yours here if it differs
+token="$(set +u; . "$HOME/Projects/polimon/.env" >/dev/null 2>&1
+  t="${POLIMON_TOKEN:-${POLIMON_TOKENS:-${POLIMON_API_TOKEN:-${API_TOKEN:-${TOKEN:-}}}}}"; printf '%s' "${t%%,*}")"
+[[ -n "$token" ]] || { echo "no token found in ~/Projects/polimon/.env (tried POLIMON_TOKEN, POLIMON_TOKENS, POLIMON_API_TOKEN, API_TOKEN, TOKEN)" >&2; exit 1; }
+
+url="https://polimon.meh-labs.ca/alerts.json?since=$since&limit=500"
+[[ -n "$source_arg" ]] && url="$url&source=$source_arg"
+
+# ponytail: token goes via stdin config, so it never shows in ps or output
+printf 'header = "Authorization: Bearer %s"\n' "$token" |
+  curl -sS --fail-with-body -K - "$url" |
+  python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+items = d if isinstance(d, list) else next((d[k] for k in ("alerts", "data", "items", "results") if isinstance(d.get(k), list)), [])
+print(f"{len(items)} alerts")
+for a in items:
+    date = a.get("published_at") or a.get("date") or a.get("created_at") or ""
+    print(f"{a.get(\"source\",\"\")}\t{date}\t{(a.get(\"title\") or \"\")[:160]}\t{a.get(\"url\",\"\")}")
+'

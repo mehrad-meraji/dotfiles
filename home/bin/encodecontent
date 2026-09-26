@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Decode a file using age
+# Usage: encodeContent <file>
+# Example: encodeFile file.txt
+# Output: <encoded content>
+content=$1
+output_file=$2
+
+age_key=$(cat ~/.ssh/key_age.pub)
+echo "$content" | age -r "$age_key" >"$output_file"

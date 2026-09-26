@@ -1,0 +1,12 @@
+#!/bin/bash
+
+function getBWSession() {
+  lockfile="${HOME}/.ssh/heisenberg-isolate"
+  decodedPassword=$(./decodefile "$lockfile.age")
+
+  echo "$decodedPassword" >"$lockfile"
+  BW_SESSION=$(NODE_OPTIONS="--no-deprecation" bw unlock --passwordfile "$lockfile" --raw)
+
+  export BW_SESSION
+  rm "$lockfile"
+}

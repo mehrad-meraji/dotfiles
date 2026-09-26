@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Encode a file using age
+# Usage: encodeFile <file>
+# Example: encodeFile file.txt
+# Output: <decoded content>
+encoded_file=$1
+age_key="${HOME}/.ssh/key_age"
+
+age -d -i "$age_key" "$encoded_file"
