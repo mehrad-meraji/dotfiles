@@ -110,7 +110,10 @@ brews = [
   "colima",
   "docker",
   "docker-compose",
-  # Needed for `hasVault`, which renders /etc/sentinel.conf on servers.
+  # rbw backs `hasVault`, which renders /etc/sentinel.conf. pinentry-mac is
+  # needed with it: the TTY pinentries fail with "Inappropriate ioctl for
+  # device" when apply runs outside a terminal, so unlocking never succeeds.
+  "pinentry-mac",
   "rbw",
   "restic",
   "tailscale",

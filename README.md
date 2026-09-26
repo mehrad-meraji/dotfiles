@@ -32,7 +32,7 @@ which scripts run.
 | Role | Gets | Skips |
 |---|---|---|
 | `laptop` | shared + laptop packages, GUI apps, Bitwarden secrets | server scripts |
-| `server` | shared + `cloudflared`, `colima`, `docker`, `rbw`, `restic`, `tailscale`; `hasSecrets` forced off, `hasVault` on | rustup, karabiner, terminal-theme agent |
+| `server` | shared + `cloudflared`, `colima`, `docker`, `pinentry-mac`, `rbw`, `restic`, `tailscale`; `hasSecrets` forced off, `hasVault` on | rustup, karabiner, terminal-theme agent |
 
 `--promptString` is keyed by the **prompt text**, not the variable name:
 
@@ -112,6 +112,31 @@ Without `rbw` the script deliberately leaves an existing `/etc/sentinel.conf`
 untouched rather than writing a half-populated one, and warns only if the file is
 missing altogether. Both gates are computed at **init** time, so a machine that
 gains `rbw` later needs `chezmoi init` re-run, not just `apply`.
+
+Set up on a server:
+
+```sh
+rbw config set email <you@example.com>
+rbw config set pinentry pinentry-mac   # the TTY pinentries cannot prompt
+rbw login
+chezmoi init --promptString "Machine role (laptop/server)=server"
+```
+
+`pinentry-mac` matters more than it looks. With the default `pinentry`, an apply
+from anything that is not an interactive terminal dies on `Inappropriate ioctl
+for device` and the whole apply fails. Also note the vault re-locks after
+`lock_timeout` (an hour by default), so an apply run long after the last unlock
+needs `rbw unlock` first — unattended applies on a server are not possible while
+a secret is fetched at apply time.
+
+To apply only this file, without the full run (which would install the brew set
+and switch the login shell to fish):
+
+```sh
+chezmoi execute-template \
+  < ~/.local/share/chezmoi/home/.chezmoiscripts/run_onchange_install-sentinel-conf.sh.tmpl \
+  | sh
+```
 
 To create the vault entry from a server that still has the file, once:
 
