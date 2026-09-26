@@ -4,10 +4,10 @@
     "superpowers@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/superpowers/6.3.0",
-        "version": "6.3.0",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/superpowers/6.4.1",
+        "version": "6.4.1",
         "installedAt": "2026-03-26T02:25:33.830Z",
-        "lastUpdated": "2026-08-15T12:59:30.072Z",
+        "lastUpdated": "2026-09-23T03:13:05.291Z",
         "gitCommitSha": "eafe962b18f6c5dc70fb7c8cc7e83e61f4cdde06"
       }
     ],
@@ -42,10 +42,10 @@
     "frontend-design@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/frontend-design/ea0a38e1d671",
-        "version": "ea0a38e1d671",
+        "installPath": "/Users/mehrad/.claude/plugins/cache/claude-plugins-official/frontend-design/db467cc56673",
+        "version": "db467cc56673",
         "installedAt": "2026-05-13T14:43:15.561Z",
-        "lastUpdated": "2026-09-17T12:04:02.261Z",
+        "lastUpdated": "2026-09-23T03:13:02.313Z",
         "gitCommitSha": "72a63d5d082937f3af121354e0c168bee1be4b56"
       }
     ],

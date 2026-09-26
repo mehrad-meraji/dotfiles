@@ -15,3 +15,182 @@ type = "git-repo"
 url = "https://github.com/mehrad-meraji/nvim"
 refreshPeriod = "168h"
 
+
+# Projects: cloned on a new machine, never pulled afterwards (no refreshPeriod).
+# Removed on purpose: penpot, searxng (upstream clones), mmr-web (work org).
+
+["Projects/BredinsBest"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/BredinsBest.git"
+
+["Projects/DC_Project"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/DC_Project.git"
+
+["Projects/GPX Video"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/gpx-video.git"
+
+["Projects/OAC"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/oac.git"
+
+["Projects/alacritas-research"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/alacritas-research.git"
+
+["Projects/berlin-shelter-project"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/berlin-shelter-project.git"
+
+["Projects/blender-mcp-addon"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/blender-mcp-addon.git"
+
+["Projects/bosun"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/bosun.git"
+
+["Projects/chess-project"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/chess-project.git"
+
+["Projects/command-centre-infra"]
+    type = "git-repo"
+    url = "https://github.com/SOOPERCOOLER/command-centre-infra.git"
+
+["Projects/command-centre"]
+    type = "git-repo"
+    url = "https://github.com/SOOPERCOOLER/command-centre.git"
+
+["Projects/csb"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/cbox.git"
+
+["Projects/cups-of-coffee"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/cups-of-coffee.git"
+
+["Projects/diablo-clone"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/wyrd.git"
+
+["Projects/digital-exhibit-website"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/digital-exhibit-test.git"
+
+["Projects/forage"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/forage.git"
+
+["Projects/fuckdougford"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/provincial-receipts.git"
+
+["Projects/glean"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/glean.git"
+
+["Projects/hearth"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/hearth.git"
+
+["Projects/historytrail"]
+    type = "git-repo"
+    url = "https://github.com/chinatownclt/historytrail.git"
+
+["Projects/home-lab-infra"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/home-lab-infra.git"
+
+["Projects/hot-glue"]
+    type = "git-repo"
+    url = "https://github.com/SOOPERCOOLER/hot-glue.git"
+
+["Projects/jeefi-releases"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/jeefi-releases.git"
+
+["Projects/jeefi"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/jeefi.git"
+
+["Projects/magpie"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/magpie.git"
+
+["Projects/mealbowl"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/mealbowl.git"
+
+["Projects/meh-labs-site"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/meh-labs-site.git"
+
+["Projects/patina"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/patina.git"
+
+["Projects/people-project"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/people-project.git"
+
+["Projects/petrax"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/petrax.git"
+
+["Projects/petrihub"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/petrihub.git"
+
+["Projects/polimon"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/polimon.git"
+
+["Projects/running-tools"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/running-tools.git"
+
+["Projects/running-trail-map"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/running-trail-map.git"
+
+["Projects/sentinel"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/sentinel.git"
+
+["Projects/simcity"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/simcity.git"
+
+["Projects/sooperarrt"]
+    type = "git-repo"
+    url = "https://github.com/SOOPERCOOLER/sooperarrt.git"
+
+["Projects/soopercooler-site"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/soopercooler-site.git"
+
+["Projects/sooperpowers-cms"]
+    type = "git-repo"
+    url = "https://github.com/SOOPERCOOLER/sooperpowers-cms.git"
+
+["Projects/strength-app"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/strength-app.git"
+
+["Projects/taskscape-app"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/taskscape-app.git"
+
+["Projects/taskscape-laravel"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/taskscape-laravel.git"
+
+["Projects/tessera"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/tessera.git"
+
+["Projects/village-console"]
+    type = "git-repo"
+    url = "https://github.com/mehrad-meraji/village-console.git"
