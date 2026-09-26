@@ -14,7 +14,7 @@
 set -eu
 
 target=/etc/sentinel.conf
-{{ if .hasSecrets -}}
+{{ if .hasVault -}}
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT INT TERM
 chmod 600 "$tmp"
@@ -31,12 +31,12 @@ fi
 echo "chezmoi: updating $target (sudo required)" >&2
 sudo install -m 644 -o root -g wheel "$tmp" "$target"
 {{- else -}}
-# No rbw on this machine, so hasSecrets is false and the values cannot be
+# No rbw on this machine, so hasVault is false and the values cannot be
 # rendered. Leave any existing file alone rather than clobbering it with a
 # half-populated one; say something only if it is missing entirely.
 if [ ! -f "$target" ]; then
     echo "chezmoi: $target is missing and rbw is unavailable, so it cannot be" >&2
-    echo "         rendered. See README 'Secrets' to enable rbw on this machine." >&2
+    echo "         rendered. Install rbw and run `chezmoi init` - see README 'Secrets'." >&2
 fi
 {{- end }}
 {{- end -}}

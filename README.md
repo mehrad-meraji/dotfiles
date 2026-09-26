@@ -32,7 +32,7 @@ which scripts run.
 | Role | Gets | Skips |
 |---|---|---|
 | `laptop` | shared + laptop packages, GUI apps, Bitwarden secrets | server scripts |
-| `server` | shared + `cloudflared`, `restic`, `tailscale`; `hasSecrets` forced off | rustup, karabiner, terminal-theme agent |
+| `server` | shared + `cloudflared`, `colima`, `docker`, `rbw`, `restic`, `tailscale`; `hasSecrets` forced off, `hasVault` on | rustup, karabiner, terminal-theme agent |
 
 `--promptString` is keyed by the **prompt text**, not the variable name:
 
@@ -64,8 +64,16 @@ Nothing secret is stored in this repo. Files that need a secret are rendered at
 apply time from [Bitwarden](https://github.com/doy/rbw) (`rbw`), and a few SSH
 keys are [age](https://age-encryption.org)-encrypted.
 
-If `rbw` is not installed, `hasSecrets` is `false` and every secret-backed file
-is skipped — the rest still applies. To force that on a machine that does have
+There are two gates, because a server needs one secret without wanting the rest:
+
+| Gate | True when | Controls |
+|---|---|---|
+| `hasSecrets` | role is `laptop` **and** `rbw` is present | personal material — SSH keys, `~/.git-credentials`, Claude history, Plane API key |
+| `hasVault` | `rbw` is present, any role | server-side secrets only — today just `/etc/sentinel.conf` |
+
+So a server with `rbw` renders `/etc/sentinel.conf` and still gets none of the
+laptop's keys. If `rbw` is absent both are `false`, every secret-backed file is
+skipped, and the rest still applies. To force that on a machine that does have
 `rbw`:
 
 ```sh
@@ -97,14 +105,13 @@ a managed file, because the target is outside `$HOME`. `chezmoi apply` prompts f
 sudo when the contents change; rotating the key in Bitwarden and re-applying is
 enough to push it out.
 
-Note the tension with the role table above: the servers that need this file are
-exactly the machines where `hasSecrets` is forced off. Without `rbw` the script
-deliberately leaves an existing `/etc/sentinel.conf` untouched rather than writing
-a half-populated one, and warns only if the file is missing altogether. To have
-chezmoi genuinely own the file on a server, give that machine `rbw` and re-run
-`chezmoi init` (see above) — `hasSecrets` is computed at init time, and is
-`laptop`-only today, so the role check in `.chezmoi.toml.tmpl` has to be relaxed
-as well.
+Gated on `hasVault`, not `hasSecrets`, so a server renders this one file without
+also pulling down the laptop's SSH keys and git credentials.
+
+Without `rbw` the script deliberately leaves an existing `/etc/sentinel.conf`
+untouched rather than writing a half-populated one, and warns only if the file is
+missing altogether. Both gates are computed at **init** time, so a machine that
+gains `rbw` later needs `chezmoi init` re-run, not just `apply`.
 
 To create the vault entry from a server that still has the file, once:
 

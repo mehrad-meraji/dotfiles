@@ -1,5 +1,6 @@
 {{- $machineRole := promptStringOnce . "machineRole" "Machine role (laptop/server)" "laptop" -}}
-{{- $hasSecrets := and (eq $machineRole "laptop") (lookPath "rbw") (not (env "CHEZMOI_NO_SECRETS")) -}}
+{{- $hasVault := and (lookPath "rbw") (not (env "CHEZMOI_NO_SECRETS")) -}}
+{{- $hasSecrets := and (eq $machineRole "laptop") $hasVault -}}
 {{- $brewPrefix := "/opt/homebrew" -}}
 {{- if ne .chezmoi.arch "arm64" }}{{ $brewPrefix = "/usr/local" }}{{ end -}}
 
@@ -19,6 +20,11 @@ encryption = "age"
   # false on machines without Bitwarden (work, servers). Secret-backed files are
   # skipped instead of failing the whole apply. Force off with CHEZMOI_NO_SECRETS=1.
   hasSecrets = {{ if $hasSecrets }}true{{ else }}false{{ end }}
+  # true wherever rbw can be reached, whatever the role. `hasSecrets` stays
+  # laptop-only because it gates personal material - SSH keys, git credentials,
+  # Claude history - that has no business on a server. Server-side secrets gate
+  # on this instead, so a server pulls only the one value it needs.
+  hasVault = {{ if $hasVault }}true{{ else }}false{{ end }}
 
 [data.github]
   username = "mehrad-meraji"

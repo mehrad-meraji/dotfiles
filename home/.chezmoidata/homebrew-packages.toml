@@ -102,6 +102,8 @@ brews = [
   "colima",
   "docker",
   "docker-compose",
+  # Needed for `hasVault`, which renders /etc/sentinel.conf on servers.
+  "rbw",
   "restic",
   "tailscale",
 ]
