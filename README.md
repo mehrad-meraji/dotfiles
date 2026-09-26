@@ -55,7 +55,7 @@ chezmoi cannot install these. Do them by hand after the first apply:
 | Microsoft 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams) | Microsoft installer or App Store |
 | Toggl Track, Dia | Vendor download, no cask |
 | Alacritty | Homebrew disabled the cask on 2026-09-01 (fails Gatekeeper). Download from [GitHub releases](https://github.com/alacritty/alacritty/releases) |
-| Licence keys — Sketch, Raycast Pro, Herd Pro | Bitwarden |
+| Licence keys — Sketch | Bitwarden |
 | Apple ID, iCloud, Messages | System Settings |
 
 ## Secrets
