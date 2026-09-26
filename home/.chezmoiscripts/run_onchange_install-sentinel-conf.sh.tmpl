@@ -1,0 +1,42 @@
+{{- if eq .machineRole "server" -}}
+#!/bin/sh
+# Installs /etc/sentinel.conf, read by `sentinel agent` from the user crontab
+# every minute.
+#
+# The target is outside $HOME, which chezmoi cannot manage as an ordinary file,
+# so it is installed here instead. `run_onchange_` means this re-runs only when
+# the rendered content changes, so rotating the key in Bitwarden is enough to
+# push the new value out on the next apply.
+#
+# server role only - the laptop has no sentinel agent, and this renders empty
+# there so chezmoi skips it.
+
+set -eu
+
+target=/etc/sentinel.conf
+{{ if .hasSecrets -}}
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT INT TERM
+chmod 600 "$tmp"
+
+cat >"$tmp" <<'SENTINEL_CONF_EOF'
+SENTINEL_URL={{ (index (rbwFields "Sentinel - meh-labs") "SENTINEL_URL").value }}
+SENTINEL_KEY={{ (index (rbwFields "Sentinel - meh-labs") "SENTINEL_KEY").value }}
+SENTINEL_CONF_EOF
+
+if [ -f "$target" ] && cmp -s "$tmp" "$target"; then
+    exit 0
+fi
+
+echo "chezmoi: updating $target (sudo required)" >&2
+sudo install -m 644 -o root -g wheel "$tmp" "$target"
+{{- else -}}
+# No rbw on this machine, so hasSecrets is false and the values cannot be
+# rendered. Leave any existing file alone rather than clobbering it with a
+# half-populated one; say something only if it is missing entirely.
+if [ ! -f "$target" ]; then
+    echo "chezmoi: $target is missing and rbw is unavailable, so it cannot be" >&2
+    echo "         rendered. See README 'Secrets' to enable rbw on this machine." >&2
+fi
+{{- end }}
+{{- end -}}

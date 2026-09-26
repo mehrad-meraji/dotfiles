@@ -87,6 +87,31 @@ Vault entries used:
 |---|---|
 | `Github Terminal Token` | `~/.git-credentials` |
 | `age-secret` (notes field) | `~/.ssh/key_age` — the age identity |
+| `Sentinel - meh-labs` (`SENTINEL_URL`, `SENTINEL_KEY` fields) | `/etc/sentinel.conf` — `server` role only |
+
+### `/etc/sentinel.conf`
+
+Read every minute by `sentinel agent` from the user crontab. Installed by
+`home/.chezmoiscripts/run_onchange_install-sentinel-conf.sh.tmpl` — a script, not
+a managed file, because the target is outside `$HOME`. `chezmoi apply` prompts for
+sudo when the contents change; rotating the key in Bitwarden and re-applying is
+enough to push it out.
+
+Note the tension with the role table above: the servers that need this file are
+exactly the machines where `hasSecrets` is forced off. Without `rbw` the script
+deliberately leaves an existing `/etc/sentinel.conf` untouched rather than writing
+a half-populated one, and warns only if the file is missing altogether. To have
+chezmoi genuinely own the file on a server, give that machine `rbw` and re-run
+`chezmoi init` (see above) — `hasSecrets` is computed at init time, and is
+`laptop`-only today, so the role check in `.chezmoi.toml.tmpl` has to be relaxed
+as well.
+
+To create the vault entry from a server that still has the file, once:
+
+```sh
+export BW_SESSION=$(bw unlock --raw)
+scripts/add-sentinel-to-bitwarden.sh
+```
 
 ## Layout
 
