@@ -63,7 +63,6 @@ brews = [
   "yt-dlp",
 ]
 casks = [
-  "alacritty",
   "antigravity",
   "appcleaner",
   "bitwarden",
@@ -88,12 +87,11 @@ casks = [
   "sketch",
   "slack",
   "stats",
-  "syncthing",
+  "syncthing-app",
   "tailscale-app",
   "vlc",
   "webpquicklook",
   "zed",
-  "zen-browser",
   "zoom",
 ]
 

@@ -3,7 +3,7 @@
 macOS dotfiles managed with [chezmoi](https://chezmoi.io).
 
 Shell is [fish](https://fishshell.com); zsh is kept as a minimal fallback.
-Terminals: WezTerm / Alacritty / Kitty, all themed Catppuccin and switched
+Terminal: Alacritty with Zellij, both themed Catppuccin and switched
 automatically with the macOS light/dark setting.
 
 ## Install
@@ -54,6 +54,7 @@ chezmoi cannot install these. Do them by hand after the first apply:
 | Adobe Creative Cloud (Photoshop, Illustrator, Premiere, Substance) | Adobe CC desktop app |
 | Microsoft 365 (Word, Excel, PowerPoint, Outlook, OneNote, Teams) | Microsoft installer or App Store |
 | Toggl Track, Dia | Vendor download, no cask |
+| Alacritty | Homebrew disabled the cask on 2026-09-01 (fails Gatekeeper). Download from [GitHub releases](https://github.com/alacritty/alacritty/releases) |
 | Licence keys — Sketch, Raycast Pro, Herd Pro | Bitwarden |
 | Apple ID, iCloud, Messages | System Settings |
 
