@@ -138,12 +138,18 @@ chezmoi execute-template \
   | sh
 ```
 
-To create the vault entry from a server that still has the file, once:
+To create the vault entry from a server that still has the file, once. Note this
+uses `bw`, not `rbw` — two separate CLIs with separate logins, because `rbw`
+cannot create items with custom fields:
 
 ```sh
-export BW_SESSION=$(bw unlock --raw)
+bw login                             # prints a session key
+export BW_SESSION=<the key>          # must be BW_SESSION; bw reads no other name
 scripts/add-sentinel-to-bitwarden.sh
 ```
+
+`bw login` already returns a session key, so `bw unlock` is only needed later,
+once that session has expired.
 
 ## Layout
 

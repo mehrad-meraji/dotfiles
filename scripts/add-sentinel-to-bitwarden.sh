@@ -9,8 +9,13 @@
 # Uses the `bw` CLI rather than `rbw`: rbw cannot create items with custom
 # fields. Both talk to the same vault, and this runs once.
 #
-# Usage:  export BW_SESSION=$(bw unlock --raw)
+# Usage, first time on a machine (`bw` is a separate login from `rbw`):
+#         bw login                          # returns a session key
+#         export BW_SESSION=<that key>       # the var MUST be named BW_SESSION
 #         scripts/add-sentinel-to-bitwarden.sh
+#
+# Afterwards, when the session has expired:
+#         export BW_SESSION=$(bw unlock --raw)
 
 set -eu
 
