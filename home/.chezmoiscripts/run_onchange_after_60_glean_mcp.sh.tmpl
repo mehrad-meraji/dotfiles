@@ -1,0 +1,40 @@
+#!/bin/sh
+# Installs the glean MCP wrapper that Claude Code starts from
+# ~/.local/share/glean-mcp/.venv/bin/python (see ~/Projects/glean/docs/mcp-setup.md).
+#
+# The venv holds compiled wheels for one machine, so it is rebuilt here instead
+# of being tracked. The MCP registration and its GLEAN_API_KEY live in
+# ~/.claude.json, which chezmoi does not manage; they carry over on their own.
+#
+# `run_onchange_after_` runs once per machine after Homebrew has put python3 in
+# place, and again only if this file changes. Every step skips what already
+# exists, so re-running it is safe.
+
+set -eu
+
+dir="$HOME/.local/share/glean-mcp"
+repo="https://github.com/mehrad-meraji/glean.git"
+
+if ! command -v git >/dev/null 2>&1 || ! command -v python3 >/dev/null 2>&1; then
+    echo "chezmoi: glean-mcp skipped, git or python3 is missing" >&2
+    exit 0
+fi
+
+if ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 12))'; then
+    echo "chezmoi: glean-mcp skipped, it needs python3 >= 3.12" >&2
+    exit 0
+fi
+
+mkdir -p "$dir"
+# The repo is private: the clone needs ~/.git-credentials (hasSecrets machines).
+# Without them, warn and skip rather than failing the whole `chezmoi apply`.
+if [ ! -d "$dir/src/.git" ] && ! GIT_TERMINAL_PROMPT=0 git clone -q "$repo" "$dir/src"; then
+    echo "chezmoi: glean-mcp skipped, could not clone $repo (no GitHub credentials?)" >&2
+    exit 0
+fi
+[ -x "$dir/.venv/bin/python" ] || python3 -m venv "$dir/.venv"
+
+if ! "$dir/.venv/bin/python" -c 'import glean.mcp' 2>/dev/null; then
+    "$dir/.venv/bin/pip" install -q -e "$dir/src"
+    echo "✓ glean-mcp installed in $dir"
+fi
