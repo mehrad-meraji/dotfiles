@@ -3,7 +3,8 @@
 set -u
 
 LOG_DIR="$HOME/.claude/skills/audit-taskscape/logs"
-mkdir -p "$LOG_DIR"
+STATE_DIR="$HOME/.claude/skills/audit-taskscape/state"
+mkdir -p "$LOG_DIR" "$STATE_DIR"
 LOG_FILE="$LOG_DIR/$(date +%Y-%m-%d).log"
 
 # Ensure claude CLI is on PATH (launchd has a minimal env)

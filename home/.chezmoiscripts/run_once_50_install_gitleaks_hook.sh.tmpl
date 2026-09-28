@@ -1,7 +1,7 @@
 #!/bin/sh
 # Blocks committing secrets into the chezmoi source repo — it pushes to a public repo.
 {{ if lookPath "gitleaks" -}}
-HOOK="{{ .chezmoi.sourceDir }}/.git/hooks/pre-commit"
+HOOK="{{ .chezmoi.workingTree }}/.git/hooks/pre-commit"
 cat > "$HOOK" <<'HOOKEOF'
 #!/bin/sh
 exec gitleaks protect --staged

@@ -15,3 +15,10 @@
 {{- end }}
 [credential "https://dev.azure.com"]
 	useHttpPath = true
+{{- if lookPath "git-lfs" }}
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+{{- end }}
