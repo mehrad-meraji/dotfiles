@@ -11,8 +11,9 @@ set -euo pipefail
 
 AK="$HOME/.ssh/authorized_keys"
 if [ ! -s "$AK" ]; then
-  echo "!! $AK is missing or empty. Refusing to disable password login." >&2
-  exit 1
+  # Skip rather than fail: aborting here would also skip every later script.
+  echo "!! $AK is missing or empty. Skipping SSH hardening; password login unchanged." >&2
+  exit 0
 fi
 echo "==> authorized_keys has $(grep -c '^ssh-' "$AK") key(s)"
 

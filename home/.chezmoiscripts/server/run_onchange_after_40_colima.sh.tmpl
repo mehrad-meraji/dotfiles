@@ -21,5 +21,9 @@ if [ ! -x "{{ .homebrewPath }}/bin/colima" ]; then
   echo "colima not installed, skipping VM setup"
   exit 0
 fi
-"$HOME/.local/bin/colima-setup"
+# A failure here must not abort the apply: the scripts after this one (sentinel,
+# backups, runners) do not depend on it. Fix it, then run colima-setup by hand.
+if ! "$HOME/.local/bin/colima-setup"; then
+  echo "!! colima-setup failed; containers are not running. Re-run it once fixed." >&2
+fi
 {{ end -}}
