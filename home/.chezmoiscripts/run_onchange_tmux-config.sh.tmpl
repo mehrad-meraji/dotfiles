@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # tmux.conf hash: {{ include (joinPath .chezmoi.sourceDir "private_dot_config/tmux/tmux.conf") | sha256sum }}
-tmux source-file $HOME/.config/tmux/tmux.conf
+# Only reload when a tmux server is running; on a fresh machine there is none.
+tmux info >/dev/null 2>&1 && tmux source-file "$HOME/.config/tmux/tmux.conf"
 
 if [[ -d $HOME/.tmux/plugins/tpm ]] ; then
     # Install Tmux plugins

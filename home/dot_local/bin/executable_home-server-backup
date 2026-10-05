@@ -32,8 +32,14 @@ mkdir -p "$DUMPS"
 #    comes from the container's own POSTGRES_USER, since not every stack uses
 #    the default.
 failed=0
-containers=$(docker ps --format '{{.Names}}\t{{.Image}}' |
-  awk -F'\t' 'tolower($0) ~ /postgres|postgis|pgsql/ {print $1}')
+# If docker is down, still back up the files below; just flag the night as failed.
+if ps_out=$(docker ps --format '{{.Names}}\t{{.Image}}' 2>&1); then
+  containers=$(awk -F'\t' 'tolower($0) ~ /postgres|postgis|pgsql/ {print $1}' <<<"$ps_out")
+else
+  echo "!! docker is unreachable; no database dumps tonight: $ps_out"
+  containers=""
+  failed=1
+fi
 for c in $containers; do
   out="$DUMPS/$c.sql.gz"
   echo "-- dumping $c -> $out"
@@ -50,13 +56,14 @@ done
 #    copies live in the home-server-services repo.
 restic snapshots >/dev/null 2>&1 || restic init
 
+paths=("$DUMPS")
+[ -d "$HOME/Services" ] && paths+=("$HOME/Services")
 restic backup \
   --tag home-server \
   --exclude-caches \
   --exclude "$HOME/Services/**/.env" \
   --exclude "$HOME/Services/**/*.tgz" \
-  "$DUMPS" \
-  "$HOME/Services"
+  "${paths[@]}"
 
 restic forget --tag home-server \
   --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune

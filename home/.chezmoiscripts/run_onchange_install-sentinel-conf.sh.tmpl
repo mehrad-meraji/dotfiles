@@ -36,7 +36,8 @@ sudo install -m 644 -o root -g wheel "$tmp" "$target"
 # half-populated one; say something only if it is missing entirely.
 if [ ! -f "$target" ]; then
     echo "chezmoi: $target is missing and rbw is unavailable, so it cannot be" >&2
-    echo "         rendered. Install rbw and run `chezmoi init` - see README 'Secrets'." >&2
+    # Single quotes: inside double quotes the backticks would run `chezmoi init`.
+    echo '         rendered. Install rbw and run `chezmoi init` - see README "Secrets".' >&2
 fi
 {{- end }}
 {{- end -}}
