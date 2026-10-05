@@ -33,6 +33,27 @@ if ! {{ .homebrewPath }}/bin/tailscale status >/dev/null 2>&1; then
   warn "tailscale is not up. Run: sudo tailscale up --hostname=home-server"
 fi
 
-[ "$ok" = 1 ] && echo "✓ headless check: FileVault off, auto-login set, colima and tailscale up"
+# The notes hub needs the vault fully downloaded: Syncthing would otherwise see
+# evicted placeholders, and iCloud may evict more under "Optimize Mac Storage".
+VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes"
+if [ ! -d "$VAULT" ]; then
+  ok=0
+  warn "The Obsidian vault is not here yet. Sign in to iCloud (iCloud Drive only)" \
+       "   and wait for it to download: $VAULT"
+else
+  if [ "$(defaults read com.apple.bird optimize-storage 2>/dev/null)" = 1 ]; then
+    ok=0
+    warn "Optimize Mac Storage is on; iCloud may evict vault files. Turn it off in" \
+         "   System Settings > Apple Account > iCloud > Drive."
+  fi
+  evicted=$(find "$VAULT" -type f -flags dataless 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$evicted" != 0 ]; then
+    ok=0
+    warn "$evicted vault files are not downloaded. In Finder, right-click the Notes" \
+         "   folder > Keep Downloaded."
+  fi
+fi
+
+[ "$ok" = 1 ] && echo "✓ headless check: FileVault off, auto-login set, colima and tailscale up, vault downloaded"
 exit 0
 {{ end -}}

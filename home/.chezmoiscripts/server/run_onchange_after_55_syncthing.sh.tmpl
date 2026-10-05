@@ -1,0 +1,26 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Syncthing as a brew service (LaunchAgent, runs at login; auto-login makes
+# that boot). Config lives in ~/Library/Application Support/Syncthing, the same
+# place the old box's Syncthing.app used, so scripts/migrate-syncthing.sh can
+# drop its identity in and the peers reconnect without re-pairing.
+#
+# The GUI listens on 127.0.0.1:8384 only. Reach it with
+#   ssh -L 8384:127.0.0.1:8384 home-server   then open http://localhost:8384
+set -euo pipefail
+
+BREW="{{ .homebrewPath }}/bin/brew"
+ST="{{ .homebrewPath }}/bin/syncthing"
+[ -x "$ST" ] || { echo "syncthing not installed, skipping"; exit 0; }
+
+"$BREW" services start syncthing >/dev/null || "$BREW" services restart syncthing >/dev/null
+echo "==> syncthing running as a brew service"
+
+# Direct connections (LAN and tailnet) need inbound 22000. Without this it still
+# works, through Syncthing's public relays, just slower.
+FW=/usr/libexec/ApplicationFirewall/socketfilterfw
+REAL=$(realpath "$ST")
+sudo "$FW" --add "$REAL" >/dev/null
+sudo "$FW" --unblockapp "$REAL" >/dev/null
+echo "==> firewall allows $REAL"
+{{ end -}}

@@ -3,8 +3,8 @@
 #   1. pg_dumpall every running Postgres container, using that container's own
 #      client so version skew (15/16/17/18) is never an issue.
 #   2. Tar every other named volume (SQLite files, uploads, MinIO objects).
-#   3. restic-backup the dumps, the volume tarballs and ~/Services, .env files
-#      included: the restic repo is encrypted, and until home-server-services
+#   3. restic-backup the dumps, the volume tarballs, ~/Services and the Obsidian
+#      vault, .env files included: the restic repo is encrypted, and until home-server-services
 #      exists this is the only copy of them.
 #
 # Restore:  restic -r /Volumes/Mehrad/restic snapshots
@@ -87,6 +87,10 @@ restic snapshots >/dev/null 2>&1 || restic init
 
 paths=("$DUMPS")
 [ -d "$HOME/Services" ] && paths+=("$HOME/Services")
+# The Obsidian vault: iCloud and Syncthing keep it in sync but have no history;
+# this gives 7 daily, 4 weekly and 6 monthly restore points.
+VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes"
+[ -d "$VAULT" ] && paths+=("$VAULT")
 restic backup \
   --tag home-server \
   --exclude-caches \

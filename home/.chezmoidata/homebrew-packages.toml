@@ -116,6 +116,13 @@ brews = [
   "pinentry-mac",
   "rbw",
   "restic",
+  # Notes hub: bridges the iCloud Obsidian vault to Syncthing peers (work Macs,
+  # non-Apple devices). Runs as a brew service; see 55_syncthing.
+  "syncthing",
   "tailscale",
 ]
-casks = []
+# Obsidian is never opened on the server. Installed so iCloud Drive treats its
+# container (iCloud~md~obsidian) as in use on this Mac and keeps it synced.
+casks = [
+  "obsidian",
+]
