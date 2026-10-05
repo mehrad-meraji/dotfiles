@@ -7,7 +7,7 @@
 #   scripts/migrate-syncthing.sh [--dry-run]
 #
 # Before running: the new box is signed in to iCloud and its Obsidian vault is
-# fully downloaded (the headless check on `chezmoi apply` says so).
+# downloaded. The script checks this itself, through Syncthing's own scan.
 #
 # One identity must never be online twice, or peers see two machines claiming
 # the same ID and sync becomes unreliable. So the old box's Syncthing.app is
@@ -26,12 +26,25 @@ on() { local host=$1; shift; ssh "$host" 'bash -s' <<<"$*"; }
 
 step "Checking both vault copies"
 old_n=$(on "$OLD" "find \"$VAULT\" -type f | wc -l" | tr -d ' ')
-new_n=$(on "$NEW" "[ -d \"$VAULT\" ] && find \"$VAULT\" -type f | wc -l || echo 0" | tr -d ' ')
-evicted=$(on "$NEW" "find \"$VAULT\" -type f -flags dataless 2>/dev/null | wc -l" | tr -d ' ')
-echo "old box: $old_n files   new box: $new_n files, $evicted not downloaded"
-if [ "$new_n" -lt $((old_n * 95 / 100)) ] || [ "$evicted" -ne 0 ]; then
-  echo "!! The new box's vault is not fully downloaded yet. Wait for iCloud" >&2
-  echo "   (Finder: right-click Notes > Keep Downloaded), then run this again." >&2
+# The new box's count comes from Syncthing's own scan, through a temporary
+# receive-only folder with no peers (so it cannot change a file). SSH sessions
+# and plain launchd jobs are not allowed into iCloud Drive without Full Disk
+# Access; the Syncthing service is, and it is the one that matters.
+new_n=$(on "$NEW" '
+  export PATH=/opt/homebrew/bin:$PATH
+  KEY=$(syncthing cli config gui apikey get)
+  syncthing cli config folders add --id vault-count --path "'"$VAULT"'" --type receiveonly >/dev/null
+  for i in $(seq 1 60); do
+    st=$(curl -s -H "X-API-Key: $KEY" "http://127.0.0.1:8384/rest/db/status?folder=vault-count")
+    echo "$st" | grep -q "\"state\": *\"idle\"" && break
+    sleep 5
+  done
+  syncthing cli config folders vault-count delete >/dev/null
+  echo "$st" | sed -n "s/.*\"localFiles\": *\([0-9]*\).*/\1/p" | head -1')
+echo "old box: $old_n files   new box (Syncthing scan): ${new_n:-?} files"
+if [ -z "$new_n" ] || [ "$new_n" -lt $((old_n * 95 / 100)) ]; then
+  echo "!! The new box's vault is not fully downloaded yet (or Syncthing cannot" >&2
+  echo "   read it). Wait for iCloud, then run this again." >&2
   exit 1
 fi
 on "$OLD" "cd \"$CONF\" && ls $FILES" >/dev/null || { echo "!! old box is missing some of: $FILES" >&2; exit 1; }
