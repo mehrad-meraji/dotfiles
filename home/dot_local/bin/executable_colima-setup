@@ -1,0 +1,43 @@
+#!/bin/bash
+# (Re)configure the colima VM that runs every docker stack on the home server,
+# then hand it to `brew services` so it comes back after a reboot.
+#
+# Run by chezmoi on the first server apply and whenever this file changes. Run
+# it by hand once the external drives are attached: colima only shares $HOME
+# with the VM by default, so without these mounts every bind mount under
+# /Volumes shows up empty inside the containers.
+#
+# Stops colima while it runs, so every container restarts. Stacks come back
+# through their compose restart policies.
+#
+# vm-type and mount-type are fixed when the VM is first created; changing them
+# later needs `colima delete`, which destroys all volumes. CPU, memory and
+# mounts can change on any run. Disk can only grow.
+set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+CPUS=${COLIMA_CPUS:-10}
+MEMORY=${COLIMA_MEMORY:-40}  # GiB
+DISK=${COLIMA_DISK:-250}     # GiB
+
+mounts=(--mount "$HOME:w")
+for vol in /Volumes/Mehrad /Volumes/Projects; do
+  if [ -d "$vol" ]; then
+    mounts+=(--mount "$vol:w")
+  else
+    echo "!! $vol is not attached; containers will not see it." >&2
+    echo "   Run colima-setup again once it is." >&2
+  fi
+done
+
+brew services stop colima >/dev/null 2>&1 || true
+colima stop >/dev/null 2>&1 || true
+
+# Flags passed to `start` are written back to the VM's colima.yaml, which is
+# what `brew services` (colima start -f) reads at boot.
+colima start --vm-type vz --mount-type virtiofs \
+  --cpus "$CPUS" --memory "$MEMORY" --disk "$DISK" "${mounts[@]}"
+colima stop
+
+brew services start colima
+echo "==> colima: ${CPUS} CPUs, ${MEMORY} GiB, mounts: ${mounts[*]}"

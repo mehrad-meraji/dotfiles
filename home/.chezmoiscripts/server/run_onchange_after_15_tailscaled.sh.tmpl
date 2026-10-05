@@ -1,0 +1,24 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# `brew install tailscale` installs the binaries but does not start the daemon,
+# and without it `tailscale up` fails with "failed to connect to local
+# tailscaled". The daemon must run as root to create the utun interface, so
+# this is `sudo brew services`, not the user-level one.
+set -euo pipefail
+
+BREW="{{ .homebrewPath }}/bin/brew"
+TS="{{ .homebrewPath }}/bin/tailscale"
+[ -x "$TS" ] || { echo "tailscale not installed, skipping"; exit 0; }
+
+echo "==> Starting tailscaled"
+sudo "$BREW" services start tailscale || sudo "$BREW" services restart tailscale
+
+for _ in $(seq 1 15); do
+  "$TS" status >/dev/null 2>&1 && break
+  sleep 1
+done
+
+if ! "$TS" status >/dev/null 2>&1; then
+  echo "==> Not logged in yet. Run: sudo tailscale up --hostname=home-server-new"
+fi
+{{ end -}}

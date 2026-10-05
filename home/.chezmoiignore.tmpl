@@ -27,3 +27,27 @@
 .claude/skills/huashu-design
 .claude/projects/*scratch-workspaces*
 .claude/projects/*scratch-workspaces*/**
+
+{{- /* authorized_keys only means something on the server. Laptops do not
+       accept inbound SSH. Same for the server's own tools and agents. */}}
+{{ if ne .machineRole "server" }}
+.ssh/authorized_keys
+.local/bin/colima-setup
+.local/bin/home-server-backup
+.config/colima/**
+Library/LaunchAgents/com.mehrad.home-server-backup.plist
+Library/LaunchAgents/com.mehrad.docker-prune.plist
+{{ end }}
+
+{{- /* Laptop-only. The run_after_ scripts that load these agents are already
+       role-gated, but launchd loads every plist in ~/Library/LaunchAgents at
+       login whether or not anything called launchctl, so the files themselves
+       must stay off the server. */}}
+{{ if eq .machineRole "server" }}
+Library/LaunchAgents/com.mehrad.sync-terminal-theme.plist
+Library/LaunchAgents/com.mehrad.taskscape-audit.plist
+.local/bin/sync-terminal-theme
+.config/alacritty/**
+.config/zellij/**
+.config/zed/**
+{{ end }}

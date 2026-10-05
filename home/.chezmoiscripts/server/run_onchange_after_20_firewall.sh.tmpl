@@ -1,0 +1,35 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# macOS application firewall: on, stealth mode, signed apps allowed.
+set -euo pipefail
+
+FW=/usr/libexec/ApplicationFirewall/socketfilterfw
+
+# Deliberately NOT --setblockall on. Block-all disables sharing services,
+# including Remote Login, and makes per-app allow rules meaningless. Global
+# state + stealth mode gives the protection we want and keeps SSH working.
+echo "==> Enabling the application firewall"
+sudo "$FW" --setglobalstate on
+sudo "$FW" --setstealthmode on
+sudo "$FW" --setallowsigned on
+sudo "$FW" --setallowsignedapp on
+
+# tailscaled needs inbound UDP to negotiate direct peer connections. Without
+# this it still works, but every connection is relayed through DERP and slow.
+# The firewall keys on the real binary, which lives under a versioned Cellar
+# path. After `brew upgrade tailscale`, allow the new one by hand:
+#   sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add "$(realpath {{ .homebrewPath }}/bin/tailscaled)"
+# cloudflared runs inside the colima VM and never needs a host allow rule.
+TS_BIN="{{ .homebrewPath }}/bin/tailscaled"
+if [ -x "$TS_BIN" ]; then
+  TS_REAL=$(realpath "$TS_BIN")
+  echo "==> Allowing $TS_REAL"
+  sudo "$FW" --add "$TS_REAL"
+  sudo "$FW" --unblockapp "$TS_REAL"
+else
+  echo "!! tailscaled not found at $TS_BIN; install it, then re-apply."
+fi
+
+sudo "$FW" --getglobalstate
+sudo "$FW" --getstealthmode
+{{ end -}}

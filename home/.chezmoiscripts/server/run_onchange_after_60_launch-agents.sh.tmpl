@@ -1,0 +1,31 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Loads the server's scheduled jobs: nightly backup and weekly docker prune.
+#
+# backup plist hash: {{ include "private_Library/LaunchAgents/com.mehrad.home-server-backup.plist.tmpl" | sha256sum }}
+# prune plist hash:  {{ include "private_Library/LaunchAgents/com.mehrad.docker-prune.plist.tmpl" | sha256sum }}
+set -euo pipefail
+
+mkdir -p "$HOME/.local/state"
+
+# restic refuses to run without a password. Generate one on first run; it is
+# never printed, so it has to be copied off the box by hand.
+PWFILE="$HOME/.config/restic/password"
+if [ ! -s "$PWFILE" ]; then
+  mkdir -p "$(dirname "$PWFILE")"
+  ( umask 077; openssl rand -base64 32 >"$PWFILE" )
+  cat <<MSG
+
+!! Generated a new restic password at $PWFILE
+   Save it in Bitwarden now. Without it the backups cannot be read.
+
+MSG
+fi
+
+for label in com.mehrad.home-server-backup com.mehrad.docker-prune; do
+  plist="$HOME/Library/LaunchAgents/$label.plist"
+  launchctl unload "$plist" 2>/dev/null || true
+  launchctl load "$plist"
+  echo "==> loaded $label"
+done
+{{ end -}}

@@ -18,6 +18,12 @@ refreshPeriod = "168h"
 
 # Projects: cloned on a new machine, never pulled afterwards (no refreshPeriod).
 # Removed on purpose: penpot, searxng (upstream clones), mmr-web (work org).
+#
+# Most of these are private, so cloning needs ~/.git-credentials, which only
+# hasSecrets machines get. Without it git stops at a credential prompt and the
+# whole apply aborts, so machines without secrets (the server, work laptops)
+# skip the lot.
+{{ if .hasSecrets -}}
 
 ["Projects/BredinsBest"]
     type = "git-repo"
@@ -194,3 +200,4 @@ refreshPeriod = "168h"
 ["Projects/village-console"]
     type = "git-repo"
     url = "https://github.com/mehrad-meraji/village-console.git"
+{{- end }}

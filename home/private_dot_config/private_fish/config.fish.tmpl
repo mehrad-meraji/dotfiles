@@ -17,7 +17,11 @@ set -gx PAGER bat
 set -gx SYSTEMD_EDITOR $EDITOR
 set -gx VISUAL $EDITOR
 
+{{ if eq .machineRole "laptop" -}}
+# The Bitwarden desktop app is the SSH agent. It is a laptop cask; the server
+# has no GUI Bitwarden, so there the system agent is left alone.
 set -gx SSH_AUTH_SOCK {{ .chezmoi.homeDir }}/.bitwarden-ssh-agent.sock
+{{ end -}}
 
 ## Source custom configs
 for file in $FISH_CONFIG_HOME/custom.d/*.fish

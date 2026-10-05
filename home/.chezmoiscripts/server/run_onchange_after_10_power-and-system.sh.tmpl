@@ -1,0 +1,36 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Power, hostname and update policy for the home server.
+#
+# A home server must never sleep, must wake for network traffic, and must come
+# back by itself after a power cut. Every command here is idempotent, so this is
+# run_onchange_: editing a value pushes it out on the next apply.
+set -euo pipefail
+
+echo "==> Server power settings"
+sudo pmset -a sleep 0
+sudo pmset -a disksleep 0
+sudo pmset -a displaysleep 10  # there is no display; the panel can go dark
+sudo pmset -a womp 1           # wake on LAN / network access
+sudo pmset -a powernap 0       # no background wake cycles
+sudo pmset -a disablesleep 1   # ignore lid close
+sudo pmset -a autorestart 1    # restart automatically after a power failure
+pmset -g | grep -E ' sleep|womp|autorestart|SleepDisabled' || true
+
+# The tailnet node name is set separately with `tailscale up --hostname`, so
+# this does not clash with the old box while both are on the tailnet.
+echo "==> Hostname: home-server"
+sudo scutil --set ComputerName home-server
+sudo scutil --set HostName home-server
+sudo scutil --set LocalHostName home-server
+
+# Download updates and keep security data current, but never install a macOS
+# update on its own: that reboots the box and takes every stack down unattended.
+echo "==> Software update policy"
+SU=/Library/Preferences/com.apple.SoftwareUpdate
+sudo defaults write "$SU" AutomaticCheckEnabled -bool true
+sudo defaults write "$SU" AutomaticDownload -bool true
+sudo defaults write "$SU" AutomaticallyInstallMacOSUpdates -bool false
+sudo defaults write "$SU" CriticalUpdateInstall -bool true
+sudo defaults write "$SU" ConfigDataInstall -bool true
+{{ end -}}

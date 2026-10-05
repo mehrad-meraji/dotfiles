@@ -1,0 +1,9 @@
+# Public keys allowed to SSH into the server (rendered to ~/.ssh/authorized_keys,
+# server role only). Public keys are not secrets.
+#
+# "Mehrad SSH Key" is the ed25519 key held in the Bitwarden SSH agent on the
+# laptops. Add a line per extra machine that needs access.
+[ssh]
+authorizedKeys = [
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILFwNfMBX7nU3LEw/VpDr8tY18jhxtOchBPN75i6KRZf Mehrad SSH Key",
+]

@@ -1,0 +1,3 @@
+# Targets chezmoi deletes on apply. Retired 2026-10-05: superseded by the
+# ed25519 "Mehrad SSH Key" in the Bitwarden SSH agent.
+.ssh/mehrad_rsa.pub

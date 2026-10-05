@@ -1,0 +1,55 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Remote Login on, keys only, no root.
+#
+# authorized keys hash: {{ .ssh.authorizedKeys | join "\n" | sha256sum }}
+#
+# after_: runs once every managed file is written, so ~/.ssh/authorized_keys is
+# already in place. Assert it anyway: getting this wrong on a headless machine
+# means a trip with a keyboard and a monitor.
+set -euo pipefail
+
+AK="$HOME/.ssh/authorized_keys"
+if [ ! -s "$AK" ]; then
+  echo "!! $AK is missing or empty. Refusing to disable password login." >&2
+  exit 1
+fi
+echo "==> authorized_keys has $(grep -c '^ssh-' "$AK") key(s)"
+
+# There is deliberately no ListenAddress binding to the Tailscale IP. macOS
+# Remote Login is launchd socket-activated: /System/Library/LaunchDaemons/
+# ssh.plist owns port 22 and spawns `sshd -i`, so sshd_config's ListenAddress
+# is ignored. Even if it worked, it would race tailscaled at boot. The real
+# protections are: no router port forward, stealth mode, keys only, and the
+# Tailscale ACL.
+# 000- so it is read before Apple's own 100-macos.conf; sshd keeps the first
+# value it sees for each option.
+CONF=/etc/ssh/sshd_config.d/000-home-server.conf
+echo "==> Writing $CONF"
+sudo mkdir -p /etc/ssh/sshd_config.d
+sudo tee "$CONF" >/dev/null <<'SSHCONF'
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+SSHCONF
+sudo chmod 644 "$CONF"
+
+echo "==> Validating sshd config"
+if ! sudo /usr/sbin/sshd -t; then
+  sudo rm -f "$CONF"
+  echo "!! sshd rejected the config; removed $CONF and left Remote Login as it was." >&2
+  exit 1
+fi
+
+# Remote Login on. `systemsetup -setremotelogin on` needs Full Disk Access for
+# the terminal on current macOS, so drive launchd directly instead. No restart
+# is needed afterwards: launchd spawns `sshd -i` per connection, so the new
+# config applies to the very next one.
+echo "==> Enabling Remote Login"
+sudo launchctl enable system/com.openssh.sshd
+sudo launchctl bootstrap system /System/Library/LaunchDaemons/ssh.plist 2>/dev/null || true
+
+echo "==> Verify from another machine BEFORE closing this session:"
+echo "    ssh -o PasswordAuthentication=no {{ .chezmoi.username }}@home-server-new true"
+{{ end -}}

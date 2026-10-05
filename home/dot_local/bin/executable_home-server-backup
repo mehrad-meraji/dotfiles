@@ -1,0 +1,65 @@
+#!/bin/bash
+# Nightly home server backup, run at 03:30 by com.mehrad.home-server-backup.
+#   1. pg_dumpall every running Postgres container, using that container's own
+#      client so version skew (15/16/17/18) is never an issue.
+#   2. restic-backup the dumps plus ~/Services.
+#
+# Restore:  restic -r /Volumes/Mehrad/restic snapshots
+#           restic -r /Volumes/Mehrad/restic restore latest --target /tmp/restore
+#
+# launchd runs this without a terminal, so macOS cannot ask for permission to
+# read the external drive. Grant restic and /bin/bash Full Disk Access once, or
+# every run fails with "Operation not permitted".
+set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+export RESTIC_REPOSITORY="/Volumes/Mehrad/restic"
+export RESTIC_PASSWORD_FILE="$HOME/.config/restic/password"
+DUMPS="/Volumes/Mehrad/pgdumps"
+LOG="$HOME/.local/state/home-server-backup.log"
+
+mkdir -p "$(dirname "$LOG")"
+exec >>"$LOG" 2>&1
+echo "===== $(date '+%F %T') start ====="
+
+if [ ! -d /Volumes/Mehrad ]; then
+  echo "!! /Volumes/Mehrad is not mounted. Aborting."
+  exit 1
+fi
+mkdir -p "$DUMPS"
+
+# 1. Dump every container whose name or image looks like Postgres. The user
+#    comes from the container's own POSTGRES_USER, since not every stack uses
+#    the default.
+failed=0
+containers=$(docker ps --format '{{.Names}}\t{{.Image}}' |
+  awk -F'\t' 'tolower($0) ~ /postgres|postgis|pgsql/ {print $1}')
+for c in $containers; do
+  out="$DUMPS/$c.sql.gz"
+  echo "-- dumping $c -> $out"
+  if docker exec "$c" sh -c 'pg_dumpall -U "${POSTGRES_USER:-postgres}"' | gzip >"$out.tmp"; then
+    mv "$out.tmp" "$out"
+  else
+    echo "!! dump failed for $c"
+    rm -f "$out.tmp"
+    failed=1
+  fi
+done
+
+# 2. Back up dumps + compose repo. Plaintext .env files stay out; the .age
+#    copies live in the home-server-services repo.
+restic snapshots >/dev/null 2>&1 || restic init
+
+restic backup \
+  --tag home-server \
+  --exclude-caches \
+  --exclude "$HOME/Services/**/.env" \
+  --exclude "$HOME/Services/**/*.tgz" \
+  "$DUMPS" \
+  "$HOME/Services"
+
+restic forget --tag home-server \
+  --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune
+
+echo "===== $(date '+%F %T') done (dump failures: $failed) ====="
+exit "$failed"

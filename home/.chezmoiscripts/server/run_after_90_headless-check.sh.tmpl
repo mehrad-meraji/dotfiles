@@ -1,0 +1,38 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Every apply: warn about anything that would stop the server coming back on
+# its own after a reboot. Warnings only, never fails the apply.
+#
+# FileVault and auto-login are not set from here: auto-login without the GUI
+# means writing /etc/kcpassword, the account password obfuscated on disk.
+
+warn() { printf '!! %s\n' "$@" >&2; }
+ok=1
+
+if fdesetup status 2>/dev/null | grep -q "FileVault is On"; then
+  ok=0
+  warn "FileVault is ON. After a power cut the disk stays locked at the login" \
+       "   window until someone types a password. Turn it off in" \
+       "   System Settings > Privacy & Security > FileVault."
+fi
+
+if [ -z "$(defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser 2>/dev/null)" ]; then
+  ok=0
+  warn "Automatic login is not set. Without it the box boots to a login window" \
+       "   and colima (a user service) never starts. Set it in System Settings >" \
+       "   Users & Groups > Automatically log in as. Needs FileVault off."
+fi
+
+if ! {{ .homebrewPath }}/bin/colima status >/dev/null 2>&1; then
+  ok=0
+  warn "colima is not running. Start it: brew services start colima"
+fi
+
+if ! {{ .homebrewPath }}/bin/tailscale status >/dev/null 2>&1; then
+  ok=0
+  warn "tailscale is not up. Run: sudo tailscale up --hostname=home-server-new"
+fi
+
+[ "$ok" = 1 ] && echo "✓ headless check: FileVault off, auto-login set, colima and tailscale up"
+exit 0
+{{ end -}}

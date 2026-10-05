@@ -1,0 +1,29 @@
+{{ if and (eq .machineRole "server") .hasVault -}}
+#!/bin/sh
+# Installs the sentinel CLI and the every-minute `sentinel agent` cron entry,
+# per the Sentinel guide (Servers). The agent reads /etc/sentinel.conf, which
+# run_onchange_install-sentinel-conf renders from the same vault entry.
+#
+# The binary is fetched once. To update it, delete /usr/local/bin/sentinel and
+# re-run this with: chezmoi state delete-bucket --bucket=entryState && chezmoi apply
+set -eu
+
+url='{{ (index (rbwFields "Sentinel - meh-labs") "SENTINEL_URL").value }}'
+url=${url%/}
+bin=/usr/local/bin/sentinel
+
+if [ ! -x "$bin" ]; then
+  echo "chezmoi: installing sentinel CLI from $url/cli (sudo required)" >&2
+  tmp=$(mktemp)
+  trap 'rm -f "$tmp"' EXIT INT TERM
+  curl -fsSL "$url/cli" -o "$tmp"
+  sudo mkdir -p /usr/local/bin
+  sudo install -m 755 "$tmp" "$bin"
+fi
+
+line="* * * * * $bin agent"
+if ! crontab -l 2>/dev/null | grep -qF "$line"; then
+  (crontab -l 2>/dev/null; echo "$line") | crontab -
+  echo "chezmoi: added sentinel agent to the crontab" >&2
+fi
+{{ end -}}

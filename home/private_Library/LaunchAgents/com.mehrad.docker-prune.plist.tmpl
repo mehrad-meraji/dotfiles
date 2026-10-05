@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.mehrad.docker-prune</string>
+
+    <!-- Weekly. Stopped containers, unused images, networks and build cache
+         older than a week. Never volumes: those hold the databases. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>{{ .homebrewPath }}/bin/docker</string>
+        <string>system</string>
+        <string>prune</string>
+        <string>--all</string>
+        <string>--force</string>
+        <string>--filter</string>
+        <string>until=168h</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>4</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>{{ .chezmoi.homeDir }}/.local/state/docker-prune.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>{{ .chezmoi.homeDir }}/.local/state/docker-prune.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

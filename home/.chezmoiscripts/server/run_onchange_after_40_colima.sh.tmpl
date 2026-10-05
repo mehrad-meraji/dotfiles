@@ -1,0 +1,25 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Docker runtime: the colima VM, plus the docker CLI's compose plugin.
+#
+# colima-setup hash: {{ include "dot_local/bin/executable_colima-setup" | sha256sum }}
+set -euo pipefail
+
+# Homebrew's docker-compose is a CLI plugin, and the docker CLI only finds it
+# through cliPluginsExtraDirs. Merge the key in rather than managing the whole
+# file: colima writes currentContext into it on every start.
+CFG="$HOME/.docker/config.json"
+PLUGINS="{{ .homebrewPath }}/lib/docker/cli-plugins"
+mkdir -p "$(dirname "$CFG")"
+[ -s "$CFG" ] || echo '{}' >"$CFG"
+tmp=$(mktemp)
+{{ .homebrewPath }}/bin/jq --arg d "$PLUGINS" \
+  '.cliPluginsExtraDirs = ((.cliPluginsExtraDirs // []) + [$d] | unique)' \
+  "$CFG" >"$tmp" && mv "$tmp" "$CFG"
+
+if [ ! -x "{{ .homebrewPath }}/bin/colima" ]; then
+  echo "colima not installed, skipping VM setup"
+  exit 0
+fi
+"$HOME/.local/bin/colima-setup"
+{{ end -}}
