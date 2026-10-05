@@ -177,6 +177,7 @@ particular `~/.ssh/authorized_keys` — is already written.
 | `30_sshd` | Remote Login on, keys only, no root. Refuses to run if `authorized_keys` is empty |
 | `40_colima` | compose plugin path in `~/.docker/config.json`, then `~/.local/bin/colima-setup` |
 | `50_sentinel-agent` | `/usr/local/bin/sentinel` and its every-minute crontab line (`hasVault` only) |
+| `55_syncthing` | Syncthing as a brew service (GUI on `127.0.0.1:8384`, reach it with `ssh -L 8384:127.0.0.1:8384 home-server`), firewall allow for direct connections. The notes hub: bridges the iCloud Obsidian vault to Syncthing peers |
 | `60_launch-agents` | restic password on first run; loads the nightly backup (03:30: Postgres dumps, every other named volume as a tarball, `~/Services` with `.env`s) and weekly docker image + build-cache prune (Sun 04:30) agents |
 | `70_github-runners` | registers the runners marked `enabled` in `.chezmoidata/github-runners.toml` (`hasVault` only) |
 | `90_headless-check` | every apply: warns if FileVault is on, auto-login is off, or colima/tailscale is down |
@@ -193,7 +194,9 @@ SSH access is the key list in `home/.chezmoidata/ssh-authorized-keys.toml`.
 ### By hand, after the first server apply
 
 1. FileVault off, then System Settings → Users & Groups → automatically log in.
-   The headless check nags until both are done.
+   Sign in to iCloud with iCloud Drive only, with Optimize Mac Storage off, and
+   mark the Obsidian `Notes` folder Keep Downloaded. The headless check nags
+   until all of that is done.
 2. Only without the Tailscale vault entry: `sudo tailscale up --hostname=home-server`.
    Then turn off key expiry for the node in the admin console (tagged keys do this for you).
 3. From another tailnet machine: `ssh -o PasswordAuthentication=no home-server true`.
