@@ -21,7 +21,8 @@ if [ ! -x "$bin" ]; then
   sudo install -m 755 "$tmp" "$bin"
 fi
 
-line="* * * * * $bin agent"
+# PATH: cron's default is /usr/bin:/bin, and the agent needs docker from Homebrew.
+line="* * * * * PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin $bin agent"
 if ! crontab -l 2>/dev/null | grep -qF "$line"; then
   (crontab -l 2>/dev/null; echo "$line") | crontab -
   echo "chezmoi: added sentinel agent to the crontab" >&2

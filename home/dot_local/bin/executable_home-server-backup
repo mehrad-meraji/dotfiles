@@ -2,7 +2,10 @@
 # Nightly home server backup, run at 03:30 by com.mehrad.home-server-backup.
 #   1. pg_dumpall every running Postgres container, using that container's own
 #      client so version skew (15/16/17/18) is never an issue.
-#   2. restic-backup the dumps plus ~/Services.
+#   2. Tar every other named volume (SQLite files, uploads, MinIO objects).
+#   3. restic-backup the dumps, the volume tarballs and ~/Services, .env files
+#      included: the restic repo is encrypted, and until home-server-services
+#      exists this is the only copy of them.
 #
 # Restore:  restic -r /Volumes/Mehrad/restic snapshots
 #           restic -r /Volumes/Mehrad/restic restore latest --target /tmp/restore
@@ -52,8 +55,32 @@ for c in $containers; do
   fi
 done
 
-# 2. Back up dumps + compose repo. Plaintext .env files stay out; the .age
-#    copies live in the home-server-services repo.
+# 2. Every other named volume, as a tarball. Postgres data dirs are skipped
+#    (dumped above, and a live copy of them is not consistent); so are logs,
+#    caches and queues, which are rebuilt on start. Volumes are read while the
+#    stack runs, so a SQLite file can be caught mid-write: good enough nightly,
+#    and taskscape also streams to R2 with Litestream.
+if docker info >/dev/null 2>&1; then
+  mkdir -p "$DUMPS/volumes"
+  pg_vols=$(for c in $containers; do
+    docker inspect "$c" --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}'
+  done)
+  for v in $(docker volume ls -q); do
+    case " $pg_vols " in *" $v "*) continue ;; esac
+    [[ $v =~ ^[0-9a-f]{64}$ ]] && continue                   # anonymous
+    [[ $v =~ (logs|redis|mq|cache) ]] && continue
+    echo "-- volume $v"
+    if docker run --rm -v "$v":/from:ro alpine tar czf - -C /from . >"$DUMPS/volumes/$v.tgz.tmp"; then
+      mv "$DUMPS/volumes/$v.tgz.tmp" "$DUMPS/volumes/$v.tgz"
+    else
+      echo "!! volume export failed for $v"
+      rm -f "$DUMPS/volumes/$v.tgz.tmp"
+      failed=1
+    fi
+  done
+fi
+
+# 3. restic.
 restic snapshots >/dev/null 2>&1 || restic init
 
 paths=("$DUMPS")
@@ -61,7 +88,6 @@ paths=("$DUMPS")
 restic backup \
   --tag home-server \
   --exclude-caches \
-  --exclude "$HOME/Services/**/.env" \
   --exclude "$HOME/Services/**/*.tgz" \
   "${paths[@]}"
 
