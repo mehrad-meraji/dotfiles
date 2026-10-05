@@ -18,7 +18,24 @@ for _ in $(seq 1 15); do
   sleep 1
 done
 
-if ! "$TS" status >/dev/null 2>&1; then
-  echo "==> Not logged in yet. Run: sudo tailscale up --hostname=home-server"
+"$TS" status >/dev/null 2>&1 && exit 0
+
+# Not logged in. Use the auth key from Bitwarden if there is one: create it in
+# the admin console as a tagged key (e.g. tag:server). Tagged nodes have key
+# expiry off by default, so the server never silently drops off the tailnet.
+# Read at run time, never rendered, so the key is not in chezmoi's state.
+# Rename the old node to old-home-server first, or this one gets home-server-1.
+{{- if .hasVault }}
+RBW="{{ .homebrewPath }}/bin/rbw"
+keyfile=$(mktemp)
+trap 'rm -f "$keyfile"' EXIT INT TERM
+chmod 600 "$keyfile"
+if "$RBW" get "Tailscale - home-server" >"$keyfile" 2>/dev/null && [ -s "$keyfile" ]; then
+  echo "==> Joining the tailnet as home-server with the Bitwarden auth key"
+  sudo "$TS" up --auth-key="file:$keyfile" --hostname=home-server
+  exit 0
 fi
+echo "   No 'Tailscale - home-server' entry in Bitwarden."
+{{- end }}
+echo "==> Not logged in yet. Run: sudo tailscale up --hostname=home-server"
 {{ end -}}

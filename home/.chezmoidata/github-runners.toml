@@ -1,0 +1,38 @@
+# GitHub Actions self-hosted runners on the home server, registered by
+# .chezmoiscripts/server/run_onchange_after_70_github-runners.sh.tmpl.
+#
+# Leave a runner disabled until its stack has moved to the new box. Deploy jobs
+# `cd ~/Services/<stack>` on whichever runner picks them up, so a runner that
+# goes live early takes jobs the new box cannot run yet. Flip `enabled` and
+# re-apply at cutover, then remove the old box's runner in GitHub settings.
+#
+# scope: "orgs/<org>" for an org runner, "repos/<owner>/<repo>" for a repo
+# runner. mehrad-meraji is a user account, which cannot have org runners, so
+# its repos get one each.
+# labels: added to the defaults (self-hosted, macOS, ARM64).
+# Auth: a GitHub token in Bitwarden, "GitHub - home-server runners", allowed to
+# manage self-hosted runners on every scope below.
+
+[[githubRunners]]
+name = "home-server"
+scope = "orgs/SOOPERCOOLER"   # command-centre, hot-glue
+labels = []
+enabled = false
+
+[[githubRunners]]
+name = "home-server"
+scope = "repos/mehrad-meraji/taskscape-app"
+labels = ["home-server"]      # deploy-backend.yml, release.yml run on it
+enabled = false
+
+[[githubRunners]]
+name = "home-server"
+scope = "repos/mehrad-meraji/forage"
+labels = []
+enabled = false
+
+[[githubRunners]]
+name = "home-server"
+scope = "repos/mehrad-meraji/sentinel"
+labels = []
+enabled = false

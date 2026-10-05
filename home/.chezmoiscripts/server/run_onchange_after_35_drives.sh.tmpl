@@ -1,0 +1,5 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/sh
+# drives-setup hash: {{ include "dot_local/bin/executable_drives-setup" | sha256sum }}
+exec "$HOME/.local/bin/drives-setup"
+{{ end -}}

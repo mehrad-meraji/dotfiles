@@ -1,0 +1,58 @@
+#!/bin/bash
+# Registers one GitHub Actions self-hosted runner and installs it as a
+# LaunchAgent. No-op if that runner is already configured here.
+#
+#   github-runner-register <scope> <name> [labels]
+#     scope   orgs/<org> or repos/<owner>/<repo>
+#     labels  comma-separated, added to self-hosted,macOS,ARM64
+#
+# Needs a GitHub token that may manage runners on <scope>, in $GITHUB_TOKEN or
+# in Bitwarden as "GitHub - home-server runners".
+set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+scope=$1 name=$2 labels=${3:-}
+target=${scope#orgs/}; target=${target#repos/}
+dir="$HOME/actions-runner/$(echo "$target" | tr '/' '-')"
+
+if [ -f "$dir/.runner" ]; then
+  echo "✓ runner for $target already configured in $dir"
+  exit 0
+fi
+
+token=${GITHUB_TOKEN:-$(rbw get "GitHub - home-server runners" 2>/dev/null || true)}
+if [ -z "$token" ]; then
+  echo "!! no GitHub token: set GITHUB_TOKEN or add 'GitHub - home-server runners' to Bitwarden" >&2
+  exit 1
+fi
+api() { curl -fsSL -H "Authorization: Bearer $token" -H "Accept: application/vnd.github+json" "$@"; }
+
+# Latest runner release, checked against the SHA-256 GitHub publishes in the
+# release notes.
+case $(uname -m) in arm64) arch=osx-arm64 ;; *) arch=osx-x64 ;; esac
+release=$(api https://api.github.com/repos/actions/runner/releases/latest)
+version=$(jq -r .tag_name <<<"$release"); version=${version#v}
+sha=$(jq -r .body <<<"$release" | sed -n "s/.*<!-- BEGIN SHA $arch -->\([0-9a-f]\{64\}\)<!-- END SHA $arch -->.*/\1/p")
+tarball="actions-runner-$arch-$version.tar.gz"
+
+mkdir -p "$dir"
+cd "$dir"
+echo "==> Downloading actions runner $version"
+curl -fsSL -o "$tarball" "https://github.com/actions/runner/releases/download/v$version/$tarball"
+if [ -z "$sha" ] || ! echo "$sha  $tarball" | shasum -a 256 -c - >/dev/null; then
+  echo "!! checksum mismatch or missing for $tarball; not installing" >&2
+  rm -f "$tarball"
+  exit 1
+fi
+tar xzf "$tarball" && rm -f "$tarball"
+
+# Registration tokens are short-lived (1 hour); fetch one per runner.
+reg=$(api -X POST "https://api.github.com/$scope/actions/runners/registration-token" | jq -r .token)
+
+./config.sh --unattended --replace \
+  --url "https://github.com/$target" --token "$reg" \
+  --name "$name" ${labels:+--labels "$labels"} --work _work
+
+./svc.sh install
+./svc.sh start
+echo "✓ runner '$name' registered for $target"

@@ -97,6 +97,9 @@ Vault entries used:
 | `Github Terminal Token` | `~/.git-credentials` |
 | `age-secret` (notes field) | `~/.ssh/key_age` — the age identity |
 | `Sentinel - meh-labs` (`SENTINEL_URL`, `SENTINEL_KEY` fields) | `/etc/sentinel.conf` and the sentinel CLI download — `server` role only |
+| `Sentinel - meh-labs` (`BACKUP_HEARTBEAT_URL` field, optional) | `~/.config/home-server-backup/heartbeat-url`: the URL of a Sentinel cron monitor (daily, 60 min grace), pinged after a clean backup — `server` only |
+| `Tailscale - home-server` (password, optional) | read at apply time, never stored: a tagged auth key (e.g. `tag:server`) for `tailscale up` |
+| `GitHub - home-server runners` (password, optional) | read at apply time, never stored: a token that may manage self-hosted runners on `SOOPERCOOLER` and the `mehrad-meraji` repos in `github-runners.toml` |
 
 ### `/etc/sentinel.conf`
 
@@ -162,27 +165,39 @@ particular `~/.ssh/authorized_keys` — is already written.
 | Script | Does |
 |---|---|
 | `10_power-and-system` | `pmset` never sleep, wake on LAN, restart after power loss, ignore the lid; hostname `home-server`; download updates but never auto-install macOS updates |
-| `15_tailscaled` | `sudo brew services start tailscale` (the formula, run as root) |
+| `15_tailscaled` | `sudo brew services start tailscale` (the formula, run as root); joins the tailnet as `home-server` with the Bitwarden auth key if there is one |
 | `20_firewall` | application firewall on, stealth mode, allow `tailscaled` |
+| `35_drives` | `drives-setup`: Spotlight off on the data drives, Time Machine to `/Volumes/TimeMachine` |
 | `30_sshd` | Remote Login on, keys only, no root. Refuses to run if `authorized_keys` is empty |
 | `40_colima` | compose plugin path in `~/.docker/config.json`, then `~/.local/bin/colima-setup` |
 | `50_sentinel-agent` | `/usr/local/bin/sentinel` and its every-minute crontab line (`hasVault` only) |
 | `60_launch-agents` | restic password on first run; loads the nightly backup (03:30) and weekly docker image + build-cache prune (Sun 04:30) agents |
+| `70_github-runners` | registers the runners marked `enabled` in `.chezmoidata/github-runners.toml` (`hasVault` only) |
 | `90_headless-check` | every apply: warns if FileVault is on, auto-login is off, or colima/tailscale is down |
 
 SSH access is the key list in `home/.chezmoidata/ssh-authorized-keys.toml`.
+
+### Before the first server apply
+
+- Rename the old tailnet node to `old-home-server`, or the new one gets `home-server-1`.
+- Optional Bitwarden entries that remove manual steps (see Vault entries):
+  a tagged Tailscale auth key, a GitHub token for runners, and the backup
+  heartbeat URL.
 
 ### By hand, after the first server apply
 
 1. FileVault off, then System Settings → Users & Groups → automatically log in.
    The headless check nags until both are done.
-2. `sudo tailscale up --hostname=home-server`.
+2. Only without the Tailscale vault entry: `sudo tailscale up --hostname=home-server`.
+   Then turn off key expiry for the node in the admin console (tagged keys do this for you).
 3. From another tailnet machine: `ssh -o PasswordAuthentication=no home-server true`.
 4. Save `~/.config/restic/password` in Bitwarden. Without it the backups cannot be read.
-5. Attach the external drives, then run `colima-setup` so the VM can see
-   `/Volumes/Mehrad` and `/Volumes/Projects`. Containers see an empty
+5. Attach the external drives, then run `drives-setup && colima-setup` so the
+   VM can see `/Volumes/Mehrad` and `/Volumes/Projects`. Containers see an empty
    directory for any bind mount that is not shared with the VM.
-6. Full Disk Access for `restic` and `/bin/bash`, and for colima if it cannot
+6. As each stack moves over, set its runner to `enabled = true` in
+   `.chezmoidata/github-runners.toml` and apply.
+7. Full Disk Access for `restic` and `/bin/bash`, and for colima if it cannot
    read `/Volumes`. launchd jobs cannot show the permission prompt, so without
    this the backup fails with "Operation not permitted".
 

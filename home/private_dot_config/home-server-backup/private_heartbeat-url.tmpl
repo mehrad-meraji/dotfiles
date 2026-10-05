@@ -1,0 +1,7 @@
+{{- /* Sentinel cron monitor URL, pinged after a clean backup. Optional: the
+       file is only written once the "BACKUP_HEARTBEAT_URL" field exists on the
+       "Sentinel - meh-labs" vault entry, since chezmoi skips empty files. */ -}}
+{{- if and (eq .machineRole "server") .hasVault -}}
+{{- with index (rbwFields "Sentinel - meh-labs") "BACKUP_HEARTBEAT_URL" }}{{ .value }}
+{{ end -}}
+{{- end -}}

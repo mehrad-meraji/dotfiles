@@ -1,0 +1,30 @@
+#!/bin/bash
+# One-time settings for the external drives once they are attached to the home
+# server. Safe to re-run. Run by chezmoi on the first server apply, and by hand
+# after the drives move over (followed by colima-setup).
+#   - Spotlight off on the data drives: indexing them is pure I/O on a server.
+#   - Time Machine to /Volumes/TimeMachine. The new box gets its own backup set
+#     next to the old box's, which stays until the 30-day rollback is over.
+set -uo pipefail
+
+for vol in /Volumes/Mehrad /Volumes/Projects; do
+  if [ -d "$vol" ]; then
+    sudo mdutil -i off "$vol" >/dev/null && echo "✓ Spotlight off: $vol"
+  else
+    echo "-- $vol not attached; skipped"
+  fi
+done
+
+TM=/Volumes/TimeMachine
+if [ ! -d "$TM" ]; then
+  echo "-- $TM not attached; Time Machine not set"
+elif tmutil destinationinfo 2>/dev/null | grep -q "Mount Point *: $TM"; then
+  echo "✓ Time Machine already backs up to $TM"
+elif sudo tmutil setdestination "$TM" && sudo tmutil enable; then
+  echo "✓ Time Machine now backs up to $TM"
+else
+  # tmutil needs Full Disk Access for the terminal running it.
+  echo "!! tmutil failed. Give your terminal Full Disk Access and run drives-setup again," >&2
+  echo "   or pick the disk in System Settings > General > Time Machine." >&2
+fi
+exit 0

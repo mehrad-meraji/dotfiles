@@ -1,0 +1,22 @@
+{{ if and (eq .machineRole "server") .hasVault -}}
+#!/bin/bash
+# Registers the enabled runners in .chezmoidata/github-runners.toml. Already
+# registered ones are skipped, so enabling one more and re-applying only adds
+# that one. Disabling one here does NOT unregister it: remove it with
+# `./config.sh remove` in its ~/actions-runner directory.
+#
+# runner register script hash: {{ include "dot_local/bin/executable_github-runner-register" | sha256sum }}
+set -uo pipefail
+
+reg="$HOME/.local/bin/github-runner-register"
+failed=0
+{{- range .githubRunners }}
+{{- if .enabled }}
+"$reg" {{ .scope | quote }} {{ .name | quote }} {{ .labels | join "," | quote }} || failed=1
+{{- end }}
+{{- end }}
+
+# Never fail the whole apply over a runner; say so loudly instead.
+[ "$failed" = 0 ] || echo "!! one or more runners failed to register; see above" >&2
+exit 0
+{{ end -}}

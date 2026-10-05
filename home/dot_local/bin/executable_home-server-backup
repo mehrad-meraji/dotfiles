@@ -61,5 +61,12 @@ restic backup \
 restic forget --tag home-server \
   --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune
 
+# 3. Tell Sentinel the backup ran. Its cron monitor alerts when a ping is
+#    missed, so a failed or skipped night is reported by the silence.
+HEARTBEAT="$HOME/.config/home-server-backup/heartbeat-url"
+if [ "$failed" = 0 ] && [ -s "$HEARTBEAT" ]; then
+  curl -fsS -m 10 -o /dev/null "$(cat "$HEARTBEAT")" || echo "!! heartbeat ping failed"
+fi
+
 echo "===== $(date '+%F %T') done (dump failures: $failed) ====="
 exit "$failed"
