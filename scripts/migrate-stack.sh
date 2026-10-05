@@ -75,7 +75,9 @@ ssh "$OLD" "du -sh $BASE/$dir"
 mkdir -p "$SAVE/$proj"
 for c in $pg; do
   step "pg_dumpall $c -> $SAVE/$proj/$c.sql.gz (fallback if the copied data dir misbehaves)"
-  ssh "$OLD" "$OLD_DOCKER exec $c sh -c 'pg_dumpall -U \"\${POSTGRES_USER:-postgres}\"'" | gzip >"$SAVE/$proj/$c.sql.gz"
+  # unset PGHOST etc.: Plane's db container sets PGHOST=plane-db, which forces
+  # a TCP connection that wants a password instead of the local socket.
+  ssh "$OLD" "$OLD_DOCKER exec $c sh -c 'unset PGHOST PGPORT PGDATABASE; pg_dumpall -U \"\${POSTGRES_USER:-postgres}\"'" | gzip >"$SAVE/$proj/$c.sql.gz"
   [ -s "$SAVE/$proj/$c.sql.gz" ] || { echo "!! empty dump for $c; stopping before anything changes" >&2; exit 1; }
 done
 

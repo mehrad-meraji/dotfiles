@@ -46,7 +46,9 @@ fi
 for c in $containers; do
   out="$DUMPS/$c.sql.gz"
   echo "-- dumping $c -> $out"
-  if docker exec "$c" sh -c 'pg_dumpall -U "${POSTGRES_USER:-postgres}"' | gzip >"$out.tmp"; then
+  # unset PGHOST etc.: Plane's db container sets PGHOST=plane-db, which forces
+  # a TCP connection that wants a password instead of the local socket.
+  if docker exec "$c" sh -c 'unset PGHOST PGPORT PGDATABASE; pg_dumpall -U "${POSTGRES_USER:-postgres}"' | gzip >"$out.tmp"; then
     mv "$out.tmp" "$out"
   else
     echo "!! dump failed for $c"
