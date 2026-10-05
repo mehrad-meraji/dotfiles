@@ -19,6 +19,9 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 CPUS=${COLIMA_CPUS:-10}
 MEMORY=${COLIMA_MEMORY:-40}  # GiB
 DISK=${COLIMA_DISK:-250}     # GiB
+# ssh forwards TCP only. grpc also forwards UDP (self-hosted RustDesk needs
+# 21116/udp) but colima calls it experimental. COLIMA_PORT_FORWARDER=grpc colima-setup
+FORWARDER=${COLIMA_PORT_FORWARDER:-ssh}
 
 mounts=(--mount "$HOME:w")
 for vol in /Volumes/Mehrad /Volumes/Projects; do
@@ -36,8 +39,9 @@ colima stop >/dev/null 2>&1 || true
 # Flags passed to `start` are written back to the VM's colima.yaml, which is
 # what `brew services` (colima start -f) reads at boot.
 colima start --vm-type vz --mount-type virtiofs \
-  --cpus "$CPUS" --memory "$MEMORY" --disk "$DISK" "${mounts[@]}"
+  --cpus "$CPUS" --memory "$MEMORY" --disk "$DISK" --port-forwarder "$FORWARDER" \
+  "${mounts[@]}"
 colima stop
 
 brew services start colima
-echo "==> colima: ${CPUS} CPUs, ${MEMORY} GiB, mounts: ${mounts[*]}"
+echo "==> colima: ${CPUS} CPUs, ${MEMORY} GiB, $FORWARDER forwarder, mounts: ${mounts[*]}"

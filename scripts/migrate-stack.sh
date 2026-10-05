@@ -23,7 +23,8 @@
 #   3. `compose down` on the old box, so two tunnel connectors never serve the
 #      same hostname and nothing writes after the copy
 #   4. copies ~/Services/<dir> (compose files, .env, bind-mounted data)
-#   5. streams each named volume into a volume of the same name
+#   5. streams each named volume into a volume of the same name, and creates
+#      any shared external network the stack joins
 #   6. `compose up -d` on the new box, which builds any image with a `build:`
 #      section natively for arm64 (the old box is Intel)
 #
@@ -59,7 +60,13 @@ volumes=$(ssh "$OLD" "$OLD_DOCKER inspect --format '{{range .Mounts}}{{if eq .Ty
   tr ' ' '\n' | grep -vE '^$|^[0-9a-f]{64}$' | sort -u || true)
 pg=$(ssh "$OLD" "$OLD_DOCKER ps --filter label=com.docker.compose.project=$proj --format '{{.Names}} {{.Image}}'" |
   awk 'tolower($2) ~ /postgres|postgis/ {print $1}' || true)
+# Networks shared between stacks (e.g. tunnel-edge, which carries Plane through
+# command-centre's tunnel) are declared external, so compose will not create
+# them. Anything not prefixed with the project name is one of those.
+networks=$(ssh "$OLD" "$OLD_DOCKER inspect --format '{{range \$k, \$v := .NetworkSettings.Networks}}{{\$k}} {{end}}' $(echo $containers)" |
+  tr ' ' '\n' | grep -vE "^$|^${proj}_|^(bridge|host|none)$" | sort -u || true)
 echo "volumes:  ${volumes:-(none)}" | tr '\n' ' '; echo
+echo "shared networks: ${networks:-(none)}" | tr '\n' ' '; echo
 echo "postgres: ${pg:-(none)}" | tr '\n' ' '; echo
 ssh "$OLD" "du -sh $BASE/$dir"
 
@@ -84,6 +91,11 @@ for v in $volumes; do
   ssh "$NEW" "$NEW_DOCKER volume create $v" >/dev/null
   ssh "$OLD" "$OLD_DOCKER run --rm -v $v:/from:ro alpine tar -C /from -cf - ." |
     ssh "$NEW" "$NEW_DOCKER run --rm -i -v $v:/to alpine tar -C /to -xf -"
+done
+
+for n in $networks; do
+  step "Shared network $n"
+  ssh "$NEW" "$NEW_DOCKER network inspect $n" >/dev/null 2>&1 || ssh "$NEW" "$NEW_DOCKER network create $n"
 done
 
 if [ "$mode" = --no-start ]; then
