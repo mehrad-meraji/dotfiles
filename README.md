@@ -176,8 +176,8 @@ SSH access is the key list in `home/.chezmoidata/ssh-authorized-keys.toml`.
 
 1. FileVault off, then System Settings → Users & Groups → automatically log in.
    The headless check nags until both are done.
-2. `sudo tailscale up --hostname=home-server-new`.
-3. From another tailnet machine: `ssh -o PasswordAuthentication=no home-server-new true`.
+2. `sudo tailscale up --hostname=home-server`.
+3. From another tailnet machine: `ssh -o PasswordAuthentication=no home-server true`.
 4. Save `~/.config/restic/password` in Bitwarden. Without it the backups cannot be read.
 5. Attach the external drives, then run `colima-setup` so the VM can see
    `/Volumes/Mehrad` and `/Volumes/Projects`. Containers see an empty

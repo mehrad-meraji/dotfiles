@@ -51,5 +51,5 @@ sudo launchctl enable system/com.openssh.sshd
 sudo launchctl bootstrap system /System/Library/LaunchDaemons/ssh.plist 2>/dev/null || true
 
 echo "==> Verify from another machine BEFORE closing this session:"
-echo "    ssh -o PasswordAuthentication=no {{ .chezmoi.username }}@home-server-new true"
+echo "    ssh -o PasswordAuthentication=no {{ .chezmoi.username }}@home-server true"
 {{ end -}}

@@ -30,7 +30,7 @@ fi
 
 if ! {{ .homebrewPath }}/bin/tailscale status >/dev/null 2>&1; then
   ok=0
-  warn "tailscale is not up. Run: sudo tailscale up --hostname=home-server-new"
+  warn "tailscale is not up. Run: sudo tailscale up --hostname=home-server"
 fi
 
 [ "$ok" = 1 ] && echo "✓ headless check: FileVault off, auto-login set, colima and tailscale up"
