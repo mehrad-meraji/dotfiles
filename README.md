@@ -198,9 +198,8 @@ SSH access is the key list in `home/.chezmoidata/ssh-authorized-keys.toml`.
    Then turn off key expiry for the node in the admin console (tagged keys do this for you).
 3. From another tailnet machine: `ssh -o PasswordAuthentication=no home-server true`.
 4. Save `~/.config/restic/password` in Bitwarden. Without it the backups cannot be read.
-5. Attach the external drives, then run `drives-setup && colima-setup` so the
-   VM can see `/Volumes/Mehrad` and `/Volumes/Projects`. Containers see an empty
-   directory for any bind mount that is not shared with the VM.
+5. Attach the external drives, then run `drives-setup`. No stack bind-mounts
+   them, so colima does not share them; `COLIMA_EXTRA_MOUNTS` does if one ever must.
 6. As each stack moves over, set its runner to `enabled = true` in
    `.chezmoidata/github-runners.toml` and apply.
 7. Full Disk Access for `restic` and `/bin/bash`, and for colima if it cannot

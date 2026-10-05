@@ -2,10 +2,13 @@
 # (Re)configure the colima VM that runs every docker stack on the home server,
 # then hand it to `brew services` so it comes back after a reboot.
 #
-# Run by chezmoi on the first server apply and whenever this file changes. Run
-# it by hand once the external drives are attached: colima only shares $HOME
-# with the VM by default, so without these mounts every bind mount under
-# /Volumes shows up empty inside the containers.
+# Run by chezmoi on the first server apply and whenever this file changes.
+#
+# colima shares only $HOME with the VM. No stack bind-mounts anything under
+# /Volumes (checked against the old box, 2026-10-05), so nothing else is shared
+# by default. If a stack ever needs a drive, share it explicitly, e.g.
+#   COLIMA_EXTRA_MOUNTS="/Volumes/Mehrad" colima-setup
+# Sharing a removable volume can also need Full Disk Access for colima.
 #
 # Stops colima while it runs, so every container restarts. Stacks come back
 # through their compose restart policies.
@@ -24,12 +27,11 @@ DISK=${COLIMA_DISK:-250}     # GiB
 FORWARDER=${COLIMA_PORT_FORWARDER:-ssh}
 
 mounts=(--mount "$HOME:w")
-for vol in /Volumes/Mehrad /Volumes/Projects; do
+for vol in ${COLIMA_EXTRA_MOUNTS:-}; do
   if [ -d "$vol" ]; then
     mounts+=(--mount "$vol:w")
   else
-    echo "!! $vol is not attached; containers will not see it." >&2
-    echo "   Run colima-setup again once it is." >&2
+    echo "!! $vol is not attached; not shared with the VM." >&2
   fi
 done
 
