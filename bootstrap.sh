@@ -50,29 +50,36 @@ eval "$("$BREW_PREFIX/bin/brew" shellenv)"
 step "Installing chezmoi, rbw, age, pinentry-mac"
 brew install chezmoi rbw age pinentry-mac
 
-# 4. Bitwarden. rbw's config is NOT in the dotfiles repo, so set it here.
-step "Configuring rbw (Bitwarden)"
-rbw config set email "$EMAIL"
-rbw config set pinentry "$BREW_PREFIX/bin/pinentry-mac"
-rbw login
-rbw sync
+# CHEZMOI_NO_SECRETS=1 skips Bitwarden and the age key, for test VMs that must
+# not hold real secrets. chezmoi init sees the same variable and bakes
+# hasSecrets and hasVault to false, so every secret-backed file is skipped.
+if [ -n "${CHEZMOI_NO_SECRETS:-}" ]; then
+  step "CHEZMOI_NO_SECRETS set: skipping Bitwarden and the age key"
+else
+  # 4. Bitwarden. rbw's config is NOT in the dotfiles repo, so set it here.
+  step "Configuring rbw (Bitwarden)"
+  rbw config set email "$EMAIL"
+  rbw config set pinentry "$BREW_PREFIX/bin/pinentry-mac"
+  rbw login
+  rbw sync
 
-# 5. Seed the age identity BEFORE init, so chezmoi can decrypt the
-#    encrypted_*.age files on the very first apply.
-if [ ! -f "$HOME/.ssh/key_age" ]; then
-  step "Writing ~/.ssh/key_age from Bitwarden"
-  mkdir -p "$HOME/.ssh"
-  rbw get -f notes age-secret > "$HOME/.ssh/key_age"
-  chmod 600 "$HOME/.ssh/key_age"
+  # 5. Seed the age identity BEFORE init, so chezmoi can decrypt the
+  #    encrypted_*.age files on the very first apply.
+  if [ ! -f "$HOME/.ssh/key_age" ]; then
+    step "Writing ~/.ssh/key_age from Bitwarden"
+    mkdir -p "$HOME/.ssh"
+    rbw get -f notes age-secret > "$HOME/.ssh/key_age"
+    chmod 600 "$HOME/.ssh/key_age"
+  fi
+  EXPECTED=age1yds3tez2pyfda2nputpnd9vqqf6rm6al7a92rd82ah5mcflk4gds2jgdnd
+  ACTUAL=$(age-keygen -y "$HOME/.ssh/key_age")
+  if [ "$ACTUAL" != "$EXPECTED" ]; then
+    echo "age key mismatch: got $ACTUAL, expected $EXPECTED" >&2
+    echo "Fix ~/.ssh/key_age before continuing, or nothing encrypted will decrypt." >&2
+    exit 1
+  fi
+  echo "age identity OK"
 fi
-EXPECTED=age1yds3tez2pyfda2nputpnd9vqqf6rm6al7a92rd82ah5mcflk4gds2jgdnd
-ACTUAL=$(age-keygen -y "$HOME/.ssh/key_age")
-if [ "$ACTUAL" != "$EXPECTED" ]; then
-  echo "age key mismatch: got $ACTUAL, expected $EXPECTED" >&2
-  echo "Fix ~/.ssh/key_age before continuing, or nothing encrypted will decrypt." >&2
-  exit 1
-fi
-echo "age identity OK"
 
 # 6. chezmoi. --promptString is keyed by the PROMPT TEXT, not the variable
 #    name; --promptString machineRole=server is silently ignored.

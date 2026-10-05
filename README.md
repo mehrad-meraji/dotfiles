@@ -35,6 +35,12 @@ which scripts run.
 | `laptop` | shared + laptop packages, GUI apps, Bitwarden secrets | server scripts |
 | `server` | shared + `cloudflared`, `colima`, `docker`, `docker-compose`, `pinentry-mac`, `rbw`, `restic`, `tailscale`; `hasSecrets` forced off, `hasVault` on; the scripts in [Server](#server) | rustup, karabiner, laptop LaunchAgents, alacritty/zellij/zed config, the `Projects/*` externals |
 
+For a throwaway test VM, skip Bitwarden entirely so no real secret enters it:
+
+```sh
+CHEZMOI_NO_SECRETS=1 MACHINE_ROLE=server sh bootstrap.sh
+```
+
 `--promptString` is keyed by the **prompt text**, not the variable name:
 
 ```sh
