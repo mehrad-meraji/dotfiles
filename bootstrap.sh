@@ -83,6 +83,12 @@ fi
 
 # 6. chezmoi. --promptString is keyed by the PROMPT TEXT, not the variable
 #    name; --promptString machineRole=server is silently ignored.
+# On a re-run the checkout already exists, and `chezmoi init` only clones when
+# there is none: it would apply the stale copy. Pull first.
+if chezmoi git -- rev-parse --git-dir >/dev/null 2>&1; then
+  step "Updating the existing dotfiles checkout"
+  chezmoi git -- pull --ff-only
+fi
 step "Running chezmoi init --apply"
 chezmoi init --apply --promptString "Machine role (laptop/server)=$ROLE" "$GITHUB_USER"
 
