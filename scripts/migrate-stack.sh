@@ -4,21 +4,26 @@
 # old -> laptop -> new over the tailnet, so neither server needs a key for the
 # other.
 #
-#   scripts/migrate-stack.sh <project> <dir> <compose-file> [--no-start]
-#   scripts/migrate-stack.sh <project> <dir> <compose-file> --dry-run
-#   scripts/migrate-stack.sh <project> <dir> <compose-file> --rollback
+#   scripts/migrate-stack.sh <project> [--no-start]
+#   scripts/migrate-stack.sh <project> --dry-run
+#   scripts/migrate-stack.sh <project> --rollback
 #
 #   project       compose project name (`docker compose ls` on the old box)
-#   dir           directory under ~/Services that holds the stack
-#   compose-file  path relative to <dir>
 #   --no-start    copy everything but do not start it (runner-deployed stacks:
 #                 their images are built by the deploy workflow)
 #   --dry-run     only list what would be copied
 #   --rollback    stop it on the new box and start it again on the old one
 #
+# The compose command is rebuilt from the labels docker put on the stack's
+# containers when it was started: working dir, compose files and env files.
+# Stacks differ there (sooperarrt reads .env.production, magpie and hot-glue
+# read app.env too, command-centre runs from deploy/), and guessing any of it
+# wrong makes compose fail on missing variables or resolve paths wrongly.
+#
 # What it does, in order:
-#   1. lists the stack's named volumes from its containers' mounts (not from
-#      volume labels: sooperarrt's database volume is labelled art-logue)
+#   1. reads those labels, and lists the stack's named volumes from its
+#      containers' mounts (not from volume labels: sooperarrt's database volume
+#      is labelled art-logue)
 #   2. pg_dumpall of every Postgres container, saved on the laptop
 #   3. `compose down` on the old box, so two tunnel connectors never serve the
 #      same hostname and nothing writes after the copy
@@ -39,23 +44,40 @@ NEW_DOCKER=/opt/homebrew/bin/docker
 BASE=/Users/mehrad/Services
 SAVE="$HOME/home-server-migration"
 
-[ $# -ge 3 ] || { sed -n '6,17p' "$0"; exit 1; }
-proj=$1 dir=$2 file=$3 mode=${4:-}
-compose_old="$OLD_DOCKER compose -p $proj --project-directory $BASE/$dir -f $BASE/$dir/$file"
-compose_new="$NEW_DOCKER compose -p $proj --project-directory $BASE/$dir -f $BASE/$dir/$file"
+[ $# -ge 1 ] || { sed -n '6,15p' "$0"; exit 1; }
+proj=$1 mode=${2:-}
 step() { printf '\n\033[1;34m==>\033[0m %s\n' "$*"; }
 
+# The old containers are gone after the move, so the compose arguments are saved
+# here for --rollback.
+ARGS_FILE="$SAVE/$proj/compose-args"
+
 if [ "$mode" = --rollback ]; then
+  [ -s "$ARGS_FILE" ] || { echo "!! no $ARGS_FILE; was $proj migrated from this laptop?" >&2; exit 1; }
+  args=$(cat "$ARGS_FILE")
   step "Rolling back $proj: down on $NEW, up on $OLD"
-  ssh "$NEW" "$compose_new down"
-  ssh "$OLD" "$compose_old up -d"
-  ssh "$OLD" "$compose_old ps"
+  ssh "$NEW" "$NEW_DOCKER compose $args down"
+  ssh "$OLD" "$OLD_DOCKER compose $args up -d"
+  ssh "$OLD" "$OLD_DOCKER compose $args ps"
   exit 0
 fi
 
 step "Reading $proj on $OLD"
 containers=$(ssh "$OLD" "$OLD_DOCKER ps -aq --filter label=com.docker.compose.project=$proj")
 [ -n "$containers" ] || { echo "!! no containers for project '$proj' on $OLD" >&2; exit 1; }
+first=$(echo "$containers" | head -1)
+label() { ssh "$OLD" "$OLD_DOCKER inspect $first --format '{{index .Config.Labels \"com.docker.compose.project.$1\"}}'"; }
+wd=$(label working_dir) files=$(label config_files) envfiles=$(label environment_file)
+case $wd in "$BASE"/*) ;; *) echo "!! working dir $wd is not under $BASE" >&2; exit 1 ;; esac
+dir=${wd#"$BASE"/}; dir=${dir%%/*}      # top-level dir to copy, e.g. command-centre
+args="-p $proj --project-directory $wd"
+for f in ${files//,/ }; do args="$args -f $f"; done
+for e in ${envfiles//,/ }; do args="$args --env-file $e"; done
+compose_old="$OLD_DOCKER compose $args"
+compose_new="$NEW_DOCKER compose $args"
+echo "compose:  docker compose $args"
+# Fail here, before anything is stopped, if compose cannot read the config.
+ssh "$OLD" "$compose_old config -q" || { echo "!! compose cannot read $proj's config with those arguments" >&2; exit 1; }
 volumes=$(ssh "$OLD" "$OLD_DOCKER inspect --format '{{range .Mounts}}{{if eq .Type \"volume\"}}{{.Name}} {{end}}{{end}}' $(echo $containers)" |
   tr ' ' '\n' | grep -vE '^$|^[0-9a-f]{64}$' | sort -u || true)
 pg=$(ssh "$OLD" "$OLD_DOCKER ps --filter label=com.docker.compose.project=$proj --format '{{.Names}} {{.Image}}'" |
@@ -73,6 +95,7 @@ ssh "$OLD" "du -sh $BASE/$dir"
 [ "$mode" = --dry-run ] && exit 0
 
 mkdir -p "$SAVE/$proj"
+echo "$args" >"$ARGS_FILE"
 for c in $pg; do
   step "pg_dumpall $c -> $SAVE/$proj/$c.sql.gz (fallback if the copied data dir misbehaves)"
   # unset PGHOST etc.: Plane's db container sets PGHOST=plane-db, which forces
@@ -113,4 +136,4 @@ if ! ssh "$NEW" "$compose_new up -d"; then
 fi
 ssh "$NEW" "$compose_new ps"
 echo
-echo "Check the site, then move on. Roll back with: $0 $proj $dir $file --rollback"
+echo "Check the site, then move on. Roll back with: $0 $proj --rollback"
