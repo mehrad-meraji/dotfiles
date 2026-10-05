@@ -176,7 +176,7 @@ particular `~/.ssh/authorized_keys` — is already written.
 | `35_drives` | `drives-setup`: Spotlight off on the data drives, Time Machine to `/Volumes/TimeMachine` |
 | `30_sshd` | Remote Login on, keys only, no root. Refuses to run if `authorized_keys` is empty |
 | `40_colima` | compose plugin path in `~/.docker/config.json`, then `~/.local/bin/colima-setup` |
-| `50_sentinel-agent` | `/usr/local/bin/sentinel` and its every-minute crontab line (`hasVault` only) |
+| `50_sentinel-agent` | `/usr/local/bin/sentinel` (`hasVault` only); readings every minute come from the `com.mehrad.sentinel-agent` LaunchAgent, since writing a crontab needs Full Disk Access |
 | `55_syncthing` | Syncthing as a brew service (GUI on `127.0.0.1:8384`, reach it with `ssh -L 8384:127.0.0.1:8384 home-server`), firewall allow for direct connections. The notes hub: bridges the iCloud Obsidian vault to Syncthing peers |
 | `60_launch-agents` | restic password on first run; loads the nightly backup (03:30: Postgres dumps, every other named volume as a tarball, `~/Services` with `.env`s) and weekly docker image + build-cache prune (Sun 04:30) agents |
 | `70_github-runners` | registers the runners marked `enabled` in `.chezmoidata/github-runners.toml` (`hasVault` only) |

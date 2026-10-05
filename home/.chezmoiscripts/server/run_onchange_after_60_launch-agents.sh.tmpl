@@ -4,6 +4,7 @@
 #
 # backup plist hash: {{ include "private_Library/LaunchAgents/com.mehrad.home-server-backup.plist.tmpl" | sha256sum }}
 # prune plist hash:  {{ include "private_Library/LaunchAgents/com.mehrad.docker-prune.plist.tmpl" | sha256sum }}
+# sentinel plist hash: {{ include "private_Library/LaunchAgents/com.mehrad.sentinel-agent.plist.tmpl" | sha256sum }}
 set -euo pipefail
 
 mkdir -p "$HOME/.local/state"
@@ -22,8 +23,9 @@ if [ ! -s "$PWFILE" ]; then
 MSG
 fi
 
-for label in com.mehrad.home-server-backup com.mehrad.docker-prune; do
+for label in com.mehrad.home-server-backup com.mehrad.docker-prune com.mehrad.sentinel-agent; do
   plist="$HOME/Library/LaunchAgents/$label.plist"
+  [ -f "$plist" ] || continue    # sentinel-agent exists only with the vault
   launchctl unload "$plist" 2>/dev/null || true
   launchctl load "$plist"
   echo "==> loaded $label"

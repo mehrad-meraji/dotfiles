@@ -40,6 +40,10 @@
 Library/LaunchAgents/com.mehrad.home-server-backup.plist
 Library/LaunchAgents/com.mehrad.docker-prune.plist
 {{ end }}
+{{- /* The sentinel CLI is only installed where the vault can render its config. */}}
+{{ if not (and (eq .machineRole "server") .hasVault) }}
+Library/LaunchAgents/com.mehrad.sentinel-agent.plist
+{{ end }}
 
 {{- /* Laptop-only. The run_after_ scripts that load these agents are already
        role-gated, but launchd loads every plist in ~/Library/LaunchAgents at

@@ -1,7 +1,6 @@
 {{ if and (eq .machineRole "server") .hasVault -}}
 #!/bin/sh
-# Installs the sentinel CLI and the every-minute `sentinel agent` cron entry,
-# per the Sentinel guide (Servers). The agent reads /etc/sentinel.conf, which
+# Installs the sentinel CLI, per the Sentinel guide (Servers). The agent reads /etc/sentinel.conf, which
 # run_onchange_install-sentinel-conf renders from the same vault entry.
 #
 # The binary is fetched once. To update it, delete /usr/local/bin/sentinel and
@@ -22,9 +21,11 @@ if [ ! -x "$bin" ]; then
 fi
 
 # PATH: cron's default is /usr/bin:/bin, and the agent needs docker from Homebrew.
-line="* * * * * PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin $bin agent"
-if ! crontab -l 2>/dev/null | grep -qF "$line"; then
-  (crontab -l 2>/dev/null; echo "$line") | crontab -
-  echo "chezmoi: added sentinel agent to the crontab" >&2
+# Every-minute readings come from the com.mehrad.sentinel-agent LaunchAgent
+# (loaded by 60_launch-agents). An earlier version used cron; drop that line if
+# it got in, so readings are not sent twice. Writing a crontab needs Full Disk
+# Access, so this is best effort.
+if crontab -l 2>/dev/null | grep -q 'sentinel agent'; then
+  crontab -l 2>/dev/null | grep -v 'sentinel agent' | crontab - 2>/dev/null || true
 fi
 {{ end -}}
