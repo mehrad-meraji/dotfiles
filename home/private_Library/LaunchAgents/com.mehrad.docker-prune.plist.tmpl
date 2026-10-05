@@ -5,17 +5,14 @@
     <key>Label</key>
     <string>com.mehrad.docker-prune</string>
 
-    <!-- Weekly. Stopped containers, unused images, networks and build cache
-         older than a week. Never volumes: those hold the databases. -->
+    <!-- Weekly, same as the old box: unused images and build cache older than
+         a week. Stopped containers are left alone, so idle stacks keep their
+         images, and volumes are never touched: those hold the databases. -->
     <key>ProgramArguments</key>
     <array>
-        <string>{{ .homebrewPath }}/bin/docker</string>
-        <string>system</string>
-        <string>prune</string>
-        <string>--all</string>
-        <string>--force</string>
-        <string>--filter</string>
-        <string>until=168h</string>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>{{ .homebrewPath }}/bin/docker image prune -af --filter until=168h &amp;&amp; {{ .homebrewPath }}/bin/docker builder prune -f --filter until=168h</string>
     </array>
 
     <key>StartCalendarInterval</key>

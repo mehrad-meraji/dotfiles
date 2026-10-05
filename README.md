@@ -167,7 +167,7 @@ particular `~/.ssh/authorized_keys` — is already written.
 | `30_sshd` | Remote Login on, keys only, no root. Refuses to run if `authorized_keys` is empty |
 | `40_colima` | compose plugin path in `~/.docker/config.json`, then `~/.local/bin/colima-setup` |
 | `50_sentinel-agent` | `/usr/local/bin/sentinel` and its every-minute crontab line (`hasVault` only) |
-| `60_launch-agents` | restic password on first run; loads the nightly backup (03:30) and weekly `docker system prune` (Sun 04:30) agents |
+| `60_launch-agents` | restic password on first run; loads the nightly backup (03:30) and weekly docker image + build-cache prune (Sun 04:30) agents |
 | `90_headless-check` | every apply: warns if FileVault is on, auto-login is off, or colima/tailscale is down |
 
 SSH access is the key list in `home/.chezmoidata/ssh-authorized-keys.toml`.
