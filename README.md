@@ -202,8 +202,8 @@ SSH access is the key list in `home/.chezmoidata/ssh-authorized-keys.toml`.
    them, so colima does not share them; `COLIMA_EXTRA_MOUNTS` does if one ever must.
 6. As each stack moves over, set its runner to `enabled = true` in
    `.chezmoidata/github-runners.toml` and apply.
-7. Full Disk Access for `restic` and `/bin/bash`, and for colima if it cannot
-   read `/Volumes`. launchd jobs cannot show the permission prompt, so without
+7. Full Disk Access for `restic` and `/bin/bash`, so the backup can write to
+   `/Volumes/Mehrad`. launchd jobs cannot show the permission prompt, so without
    this the backup fails with "Operation not permitted".
 
 ## Layout
