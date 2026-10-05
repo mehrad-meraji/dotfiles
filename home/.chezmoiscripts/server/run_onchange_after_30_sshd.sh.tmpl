@@ -36,11 +36,18 @@ PubkeyAuthentication yes
 SSHCONF
 sudo chmod 644 "$CONF"
 
+# A Mac that has never had Remote Login on has no host keys yet (macOS makes
+# them on the first incoming connection), and `sshd -t` refuses to validate
+# without them. -A creates only the missing ones.
+sudo /usr/bin/ssh-keygen -A >/dev/null
+
 echo "==> Validating sshd config"
 if ! sudo /usr/sbin/sshd -t; then
   sudo rm -f "$CONF"
+  # Warn, do not fail: failing would also skip every later script. The headless
+  # check keeps reporting it until it is fixed.
   echo "!! sshd rejected the config; removed $CONF and left Remote Login as it was." >&2
-  exit 1
+  exit 0
 fi
 
 # Remote Login on. `systemsetup -setremotelogin on` needs Full Disk Access for

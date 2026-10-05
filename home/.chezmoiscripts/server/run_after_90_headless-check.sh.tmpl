@@ -33,6 +33,12 @@ if ! {{ .homebrewPath }}/bin/tailscale status >/dev/null 2>&1; then
   warn "tailscale is not up. Run: sudo tailscale up --hostname=home-server"
 fi
 
+if [ ! -f /etc/ssh/sshd_config.d/000-home-server.conf ]; then
+  ok=0
+  warn "SSH is not hardened (no /etc/ssh/sshd_config.d/000-home-server.conf). See" \
+       "   the 30_sshd output above."
+fi
+
 # The notes hub needs the vault fully downloaded: Syncthing would otherwise see
 # evicted placeholders, and iCloud may evict more under "Optimize Mac Storage".
 VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes"
