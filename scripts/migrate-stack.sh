@@ -55,9 +55,10 @@ ARGS_FILE="$SAVE/$proj/compose-args"
 if [ "$mode" = --rollback ]; then
   [ -s "$ARGS_FILE" ] || { echo "!! no $ARGS_FILE; was $proj migrated from this laptop?" >&2; exit 1; }
   args=$(cat "$ARGS_FILE")
+  services=$(cat "$SAVE/$proj/services" 2>/dev/null || true)
   step "Rolling back $proj: down on $NEW, up on $OLD"
   ssh "$NEW" "$NEW_DOCKER compose $args down"
-  ssh "$OLD" "$OLD_DOCKER compose $args up -d"
+  ssh "$OLD" "$OLD_DOCKER compose $args up -d $services"
   ssh "$OLD" "$OLD_DOCKER compose $args ps"
   exit 0
 fi
@@ -73,9 +74,14 @@ dir=${wd#"$BASE"/}; dir=${dir%%/*}      # top-level dir to copy, e.g. command-ce
 args="-p $proj --project-directory $wd"
 for f in ${files//,/ }; do args="$args -f $f"; done
 for e in ${envfiles//,/ }; do args="$args --env-file $e"; done
+# The services that existed on the old box, named explicitly on `up`: compose
+# then starts them even when they sit behind a profile (magpie's tunnel does),
+# which a bare `up` would skip.
+services=$(ssh "$OLD" "$OLD_DOCKER inspect --format '{{index .Config.Labels \"com.docker.compose.service\"}}' $(echo $containers)" | sort -u | tr '\n' ' ')
 compose_old="$OLD_DOCKER compose $args"
 compose_new="$NEW_DOCKER compose $args"
 echo "compose:  docker compose $args"
+echo "services: $services"
 # Fail here, before anything is stopped, if compose cannot read the config.
 ssh "$OLD" "$compose_old config -q" || { echo "!! compose cannot read $proj's config with those arguments" >&2; exit 1; }
 volumes=$(ssh "$OLD" "$OLD_DOCKER inspect --format '{{range .Mounts}}{{if eq .Type \"volume\"}}{{.Name}} {{end}}{{end}}' $(echo $containers)" |
@@ -96,6 +102,7 @@ ssh "$OLD" "du -sh $BASE/$dir"
 
 mkdir -p "$SAVE/$proj"
 echo "$args" >"$ARGS_FILE"
+echo "$services" >"$SAVE/$proj/services"
 for c in $pg; do
   step "pg_dumpall $c -> $SAVE/$proj/$c.sql.gz (fallback if the copied data dir misbehaves)"
   # unset PGHOST etc.: Plane's db container sets PGHOST=plane-db, which forces
@@ -132,7 +139,7 @@ if [ "$mode" = --no-start ]; then
 fi
 
 step "Starting $proj on $NEW"
-if ! ssh "$NEW" "$compose_new up -d"; then
+if ! ssh "$NEW" "$compose_new up -d $services"; then
   echo "!! up failed. If an image is missing, it is built by a deploy workflow:" >&2
   echo "   enable the runner and re-run the deploy, or roll back with --rollback." >&2
   exit 1

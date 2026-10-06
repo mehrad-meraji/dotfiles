@@ -110,6 +110,9 @@ brews = [
   "colima",
   "docker",
   "docker-compose",
+  # BuildKit. Without it docker falls back to the legacy builder, which fails
+  # on Dockerfiles using `COPY --chmod` (magpie) and other modern syntax.
+  "docker-buildx",
   # rbw backs `hasVault`, which renders /etc/sentinel.conf. pinentry-mac is
   # needed with it: the TTY pinentries fail with "Inappropriate ioctl for
   # device" when apply runs outside a terminal, so unlocking never succeeds.
