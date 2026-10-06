@@ -7,10 +7,16 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
-  "features": {
-    "edit_prediction_provider": "copilot"
+  "agent_servers": {
+    "github-copilot-cli": {
+      "type": "registry"
+    },
+    "claude-acp": {
+      "type": "registry"
+    }
   },
   "edit_predictions": {
+    "provider": "copilot",
     "mode": "subtle"
   },
   "language_models": {
@@ -38,15 +44,17 @@
       "enabled": true,
       "command": "php",
       "args": [
-        "/Users/mehrad/projects/meh-labs/taskscape/artisan",
+        "/Users/mehrad/projects/taskscape-laravel/artisan",
         "boost:mcp"
       ],
     },
   },
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "agent": {
+    "tool_permissions": {
+      "default": "allow"
+    },
     "default_profile": "write",
-    "always_allow_tool_actions": true,
     "default_model": {
       "provider": "copilot_chat",
       "model": "gpt-4.1",
@@ -60,6 +68,6 @@
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "Catppuccin Macchiato",
+    "dark": "One Dark",
   },
 }

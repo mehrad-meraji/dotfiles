@@ -26,5 +26,5 @@ items = d if isinstance(d, list) else next((d[k] for k in ("alerts", "data", "it
 print(f"{len(items)} alerts")
 for a in items:
     date = a.get("published_at") or a.get("date") or a.get("created_at") or ""
-    print(f"{a.get(\"source\",\"\")}\t{date}\t{(a.get(\"title\") or \"\")[:160]}\t{a.get(\"url\",\"\")}")
+    print("\t".join([str(a.get("source","")), str(date), (a.get("title") or "")[:160], str(a.get("url",""))]))
 '
