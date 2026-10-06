@@ -20,7 +20,9 @@ set -euo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 CPUS=${COLIMA_CPUS:-10}
-MEMORY=${COLIMA_MEMORY:-40}  # GiB
+# Containers used ~5 GiB in Oct 2026 and Linux fills any spare VM memory with
+# page cache that macOS never gets back, so keep this near real need.
+MEMORY=${COLIMA_MEMORY:-12}  # GiB
 DISK=${COLIMA_DISK:-250}     # GiB
 # ssh forwards TCP only. grpc also forwards UDP (self-hosted RustDesk needs
 # 21116/udp) but colima calls it experimental. COLIMA_PORT_FORWARDER=grpc colima-setup
