@@ -1,0 +1,34 @@
+#!/bin/bash
+# Give a ~/Services checkout its own read-only GitHub deploy key, so `git pull`
+# works over SSH and from scripts. The server has no GitHub login on purpose:
+# a deploy key opens one repo, read-only, and nothing else.
+#
+#   service-deploy-key ~/Services/glean
+#
+# Makes ~/.ssh/deploy/<dir name> if missing, points origin at the SSH URL and
+# sets core.sshCommand to use only that key. Prints the public key, which still
+# has to be added to the repo (GitHub refuses one key on two repos). From a
+# machine logged in to gh:
+#   gh repo deploy-key add key.pub -R owner/repo -t home-server
+set -euo pipefail
+
+dir=$(cd "${1:?usage: service-deploy-key <checkout dir>}" && pwd)
+name=$(basename "$dir")
+url=$(git -C "$dir" remote get-url origin)
+slug=$(printf '%s\n' "$url" | sed -E 's#^(https://github\.com/|git@github\.com:)##; s#\.git$##')
+case "$slug" in */*) ;; *) echo "origin is not a GitHub repo: $url" >&2; exit 1 ;; esac
+
+key="$HOME/.ssh/deploy/$name"
+mkdir -p "$HOME/.ssh/deploy"
+chmod 700 "$HOME/.ssh/deploy"
+[ -f "$key" ] || ssh-keygen -q -t ed25519 -N "" -C "home-server $slug (read-only)" -f "$key"
+
+if ! ssh-keygen -F github.com >/dev/null 2>&1; then
+  echo "github.com is not in ~/.ssh/known_hosts. Add it first (check the" >&2
+  echo "fingerprints against https://api.github.com/meta), then run this again." >&2
+  exit 1
+fi
+
+git -C "$dir" remote set-url origin "git@github.com:$slug.git"
+git -C "$dir" config core.sshCommand "ssh -i $key -o IdentitiesOnly=yes"
+echo "$slug $(cat "$key.pub")"
