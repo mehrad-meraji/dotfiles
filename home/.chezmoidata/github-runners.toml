@@ -23,7 +23,7 @@ enabled = false
 name = "home-server"
 scope = "repos/mehrad-meraji/taskscape-app"
 labels = ["home-server"]      # deploy-backend.yml, release.yml run on it
-enabled = false
+enabled = true      # moved 2026-10-06
 
 [[githubRunners]]
 name = "home-server"
