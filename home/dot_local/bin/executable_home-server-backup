@@ -7,8 +7,8 @@
 #      vault, .env files included: the restic repo is encrypted, and until home-server-services
 #      exists this is the only copy of them.
 #
-# Restore:  restic -r /Volumes/Mehrad/restic snapshots
-#           restic -r /Volumes/Mehrad/restic restore latest --target /tmp/restore
+# Restore:  restic -r /Volumes/Glacier/restic snapshots
+#           restic -r /Volumes/Glacier/restic restore latest --target /tmp/restore
 #
 # launchd runs this without a terminal, so macOS cannot ask for permission to
 # read the external drive. Grant restic and /bin/bash Full Disk Access once, or
@@ -16,17 +16,20 @@
 set -euo pipefail
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-export RESTIC_REPOSITORY="/Volumes/Mehrad/restic"
+# The backup drive. Renamed Mehrad -> Glacier on 2026-10-06. Never rename it
+# while a backup runs: the mount point moves and every open path vanishes.
+VOL=/Volumes/Glacier
+export RESTIC_REPOSITORY="$VOL/restic"
 export RESTIC_PASSWORD_FILE="$HOME/.config/restic/password"
-DUMPS="/Volumes/Mehrad/pgdumps"
+DUMPS="$VOL/pgdumps"
 LOG="$HOME/.local/state/home-server-backup.log"
 
 mkdir -p "$(dirname "$LOG")"
 exec >>"$LOG" 2>&1
 echo "===== $(date '+%F %T') start ====="
 
-if [ ! -d /Volumes/Mehrad ]; then
-  echo "!! /Volumes/Mehrad is not mounted. Aborting."
+if [ ! -d "$VOL" ]; then
+  echo "!! $VOL is not mounted. Aborting."
   exit 1
 fi
 mkdir -p "$DUMPS"

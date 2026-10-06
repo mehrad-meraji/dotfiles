@@ -7,7 +7,7 @@
 #     next to the old box's, which stays until the 30-day rollback is over.
 set -uo pipefail
 
-for vol in /Volumes/Mehrad /Volumes/Projects; do
+for vol in /Volumes/Glacier /Volumes/Projects; do
   if [ -d "$vol" ]; then
     sudo mdutil -i off "$vol" >/dev/null && echo "✓ Spotlight off: $vol"
   else

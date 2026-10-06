@@ -7,7 +7,7 @@
 # colima shares only $HOME with the VM. No stack bind-mounts anything under
 # /Volumes (checked against the old box, 2026-10-05), so nothing else is shared
 # by default. If a stack ever needs a drive, share it explicitly, e.g.
-#   COLIMA_EXTRA_MOUNTS="/Volumes/Mehrad" colima-setup
+#   COLIMA_EXTRA_MOUNTS="/Volumes/Glacier" colima-setup
 # Sharing a removable volume can also need Full Disk Access for colima.
 #
 # Stops colima while it runs, so every container restarts. Stacks come back
