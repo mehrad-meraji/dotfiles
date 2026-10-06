@@ -20,8 +20,6 @@
 {{ end }}
 
 {{- /* Claude Code: runtime state, and skills installed by `npx skills` (~/.agents). */}}
-.claude/skills/audit-taskscape/state/**
-.claude/skills/audit-taskscape/logs/**
 .claude/plugins/installed_plugins.json
 .claude/plugins/known_marketplaces.json
 .claude/skills/huashu-design
@@ -53,7 +51,6 @@ Library/LaunchAgents/com.mehrad.sentinel-agent.plist
        must stay off the server. */}}
 {{ if eq .machineRole "server" }}
 Library/LaunchAgents/com.mehrad.sync-terminal-theme.plist
-Library/LaunchAgents/com.mehrad.taskscape-audit.plist
 .local/bin/sync-terminal-theme
 .config/alacritty/**
 .config/zellij/**

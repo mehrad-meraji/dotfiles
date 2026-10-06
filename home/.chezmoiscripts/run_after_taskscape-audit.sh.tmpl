@@ -1,7 +1,0 @@
-{{ if eq .machineRole "laptop" -}}
-#!/bin/sh
-# Load (or reload) the nightly taskscape audit LaunchAgent
-plist="$HOME/Library/LaunchAgents/com.mehrad.taskscape-audit.plist"
-launchctl unload "$plist" 2>/dev/null || true
-launchctl load "$plist"
-{{ end -}}
