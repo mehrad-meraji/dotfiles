@@ -15,8 +15,23 @@ scope=$1 name=$2 labels=${3:-}
 target=${scope#orgs/}; target=${target#repos/}
 dir="$HOME/actions-runner/$(echo "$target" | tr '/' '-')"
 
+# Runner jobs run docker with an empty DOCKER_CONFIG (see the deploy
+# workflows), which loses the colima context. The runner loads this .env at
+# start, so every job finds the colima engine.
+ensure_env() {
+  local want="DOCKER_HOST=unix://$HOME/.colima/default/docker.sock"
+  grep -qxF "$want" "$dir/.env" 2>/dev/null && return 1
+  grep -v '^DOCKER_HOST=' "$dir/.env" 2>/dev/null >"$dir/.env.new" || true
+  echo "$want" >>"$dir/.env.new" && mv "$dir/.env.new" "$dir/.env"
+}
+
 if [ -f "$dir/.runner" ]; then
-  echo "✓ runner for $target already configured in $dir"
+  if ensure_env; then
+    (cd "$dir" && ./svc.sh stop >/dev/null 2>&1 || true; ./svc.sh start >/dev/null)
+    echo "✓ runner for $target: DOCKER_HOST set, service restarted"
+  else
+    echo "✓ runner for $target already configured in $dir"
+  fi
   exit 0
 fi
 
@@ -53,6 +68,7 @@ reg=$(api -X POST "https://api.github.com/$scope/actions/runners/registration-to
   --url "https://github.com/$target" --token "$reg" \
   --name "$name" ${labels:+--labels "$labels"} --work _work
 
+ensure_env || true
 ./svc.sh install
 ./svc.sh start
 echo "✓ runner '$name' registered for $target"

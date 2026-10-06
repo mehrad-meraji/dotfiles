@@ -29,7 +29,7 @@ enabled = false
 name = "home-server"
 scope = "repos/mehrad-meraji/forage"
 labels = []
-enabled = false
+enabled = true      # moved 2026-10-06
 
 [[githubRunners]]
 name = "home-server"

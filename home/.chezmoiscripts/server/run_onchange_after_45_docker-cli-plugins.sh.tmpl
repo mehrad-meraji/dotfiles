@@ -1,0 +1,20 @@
+{{ if eq .machineRole "server" -}}
+#!/bin/bash
+# Links the Homebrew docker CLI plugins into ~/.docker/cli-plugins.
+#
+# ~/.docker/config.json already points cliPluginsExtraDirs at Homebrew (see
+# 40_colima), but the deploy workflows (forage, sentinel, hot-glue) run docker
+# with an empty DOCKER_CONFIG to keep the Keychain out of the runner, and only
+# carry over ~/.docker/cli-plugins. Without these links, `docker compose` and
+# BuildKit vanish inside those jobs.
+set -euo pipefail
+
+src="{{ .homebrewPath }}/lib/docker/cli-plugins"
+dst="$HOME/.docker/cli-plugins"
+mkdir -p "$dst"
+for p in "$src"/docker-*; do
+  [ -e "$p" ] || continue
+  ln -sfn "$p" "$dst/$(basename "$p")"
+done
+echo "==> docker CLI plugins linked: $(ls "$dst" | tr '\n' ' ')"
+{{ end -}}
