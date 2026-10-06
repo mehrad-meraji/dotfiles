@@ -4,8 +4,17 @@
 Include ~/.orbstack/ssh/config
 
 {{- if eq .machineRole "laptop" }}
-# Keys come from the Bitwarden SSH agent (SSH_AUTH_SOCK in config.fish), so
-# there is no IdentityFile here. mehrad_rsa was retired on 2026-10-05.
+# Keys come from the Bitwarden SSH agent (SSH_AUTH_SOCK in config.fish).
+# mehrad_rsa was retired on 2026-10-05.
+
+# GitHub: offer only the personal key. The agent also holds deploy keys, and
+# GitHub authenticates with whichever it sees first, so without this
+# `git@github.com` can log in as the Taskscape deploy key and every other repo
+# answers "Repository not found". A .pub IdentityFile selects that key from
+# the agent; the private half never touches disk.
+Host github.com
+  IdentityFile ~/.ssh/mehrad_ed25519.pub
+  IdentitiesOnly yes
 
 # onac.ca shared hosting (Namecheap cPanel). SSH is on port 21098, not 22.
 Host namecheap
