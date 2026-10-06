@@ -67,9 +67,11 @@ done
 #    and taskscape also streams to R2 with Litestream.
 if docker info >/dev/null 2>&1; then
   mkdir -p "$DUMPS/volumes"
+  # One space-separated line: docker inspect ends each container's list with a
+  # newline, and the match below needs a space on both sides of every name.
   pg_vols=$(for c in $containers; do
     docker inspect "$c" --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}} {{end}}{{end}}'
-  done)
+  done | tr '\n' ' ')
   for v in $(docker volume ls -q); do
     case " $pg_vols " in *" $v "*) continue ;; esac
     [[ $v =~ ^[0-9a-f]{64}$ ]] && continue                   # anonymous
