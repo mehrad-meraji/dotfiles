@@ -57,7 +57,7 @@ if [ "$mode" = --rollback ]; then
   args=$(cat "$ARGS_FILE")
   services=$(cat "$SAVE/$proj/services" 2>/dev/null || true)
   step "Rolling back $proj: down on $NEW, up on $OLD"
-  ssh "$NEW" "$NEW_DOCKER compose $args down"
+  ssh "$NEW" "$NEW_DOCKER compose $args --profile '*' down"
   ssh "$OLD" "$OLD_DOCKER compose $args up -d $services"
   ssh "$OLD" "$OLD_DOCKER compose $args ps"
   exit 0
@@ -112,7 +112,9 @@ for c in $pg; do
 done
 
 step "Stopping $proj on $OLD"
-ssh "$OLD" "$compose_old down"
+# --profile "*": a plain down skips services behind a profile, which left
+# magpie's and polimon's tunnels running on the old box after their moves.
+ssh "$OLD" "$compose_old --profile '*' down"
 
 step "Copying $BASE/$dir"
 ssh "$NEW" "mkdir -p $BASE"
