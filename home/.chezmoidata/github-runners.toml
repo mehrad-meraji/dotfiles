@@ -35,4 +35,4 @@ enabled = true      # moved 2026-10-06
 name = "home-server"
 scope = "repos/mehrad-meraji/sentinel"
 labels = []
-enabled = false
+enabled = true      # moved 2026-10-06
