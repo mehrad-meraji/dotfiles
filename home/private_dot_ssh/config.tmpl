@@ -6,6 +6,13 @@ Include ~/.orbstack/ssh/config
 {{- if eq .machineRole "laptop" }}
 # Keys come from the Bitwarden SSH agent (SSH_AUTH_SOCK in config.fish), so
 # there is no IdentityFile here. mehrad_rsa was retired on 2026-10-05.
+
+# onac.ca shared hosting (Namecheap cPanel). SSH is on port 21098, not 22.
+Host namecheap
+  HostName server310.web-hosting.com
+  Port 21098
+  User oncafarr
+
 Host *
   AddKeysToAgent yes
 {{- end }}

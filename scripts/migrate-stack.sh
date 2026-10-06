@@ -113,7 +113,10 @@ ssh "$OLD" "tar -C $BASE -cf - $dir" | ssh "$NEW" "tar -C $BASE -xf -"
 
 for v in $volumes; do
   step "Volume $v"
-  ssh "$NEW" "$NEW_DOCKER volume create $v" >/dev/null
+  # Carry the volume's labels over, or compose warns that it "was not created
+  # by Docker Compose" on every up.
+  labels=$(ssh "$OLD" "$OLD_DOCKER volume inspect $v --format '{{range \$k, \$val := .Labels}}--label {{\$k}}={{\$val}} {{end}}'")
+  ssh "$NEW" "$NEW_DOCKER volume inspect $v" >/dev/null 2>&1 || ssh "$NEW" "$NEW_DOCKER volume create $labels $v" >/dev/null
   ssh "$OLD" "$OLD_DOCKER run --rm -v $v:/from:ro alpine tar -C /from -cf - ." |
     ssh "$NEW" "$NEW_DOCKER run --rm -i -v $v:/to alpine tar -C /to -xf -"
 done
