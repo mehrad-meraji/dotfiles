@@ -1,0 +1,12 @@
+{{ if and (eq .machineRole "server") .hasVault -}}
+#!/bin/bash
+# Point rbw at pinentry-auto, which prompts in the terminal over SSH instead
+# of on the server's screen. bootstrap.sh sets pinentry-mac before chezmoi
+# exists; this takes over once the wrapper is installed.
+#
+# pinentry-auto hash: {{ include "dot_local/bin/executable_pinentry-auto" | sha256sum }}
+set -euo pipefail
+RBW="{{ .homebrewPath }}/bin/rbw"
+"$RBW" config set pinentry "$HOME/.local/bin/pinentry-auto"
+echo "==> rbw pinentry: ~/.local/bin/pinentry-auto"
+{{ end -}}

@@ -135,7 +135,11 @@ chezmoi init --promptString "Machine role (laptop/server)=server"
 
 `pinentry-mac` matters more than it looks. With the default `pinentry`, an apply
 from anything that is not an interactive terminal dies on `Inappropriate ioctl
-for device` and the whole apply fails. Also note the vault re-locks after
+for device` and the whole apply fails. On the server, `12_rbw-pinentry` then
+switches rbw to `~/.local/bin/pinentry-auto`: over `ssh -t` it prompts in your
+terminal (pinentry-mac would open its dialog on the unattended screen and the
+apply would hang forever), and with no terminal it falls back to pinentry-mac
+for two minutes, then fails. Also note the vault re-locks after
 `lock_timeout` (an hour by default), so an apply run long after the last unlock
 needs `rbw unlock` first — unattended applies on a server are not possible while
 a secret is fetched at apply time.

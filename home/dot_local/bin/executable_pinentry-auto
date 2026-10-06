@@ -1,0 +1,26 @@
+#!/bin/bash
+# rbw's pinentry on the server. rbw-agent runs it with --ttyname when the rbw
+# client (or chezmoi calling rbw) has a terminal, so:
+#
+#   terminal     prompt in that terminal. Over SSH, pinentry-mac would open its
+#                dialog on the server's unattended screen and chezmoi would
+#                wait on it forever.
+#   no terminal  pinentry-mac, for someone at the screen or on Screen Sharing.
+#                It gives up after PINENTRY_AUTO_TIMEOUT seconds so an
+#                unattended apply fails instead of hanging.
+#
+# Set by 12_rbw-pinentry. Unlock first for unattended runs: `ssh -t home-server rbw unlock`.
+BREW=/opt/homebrew
+[ -d "$BREW" ] || BREW=/usr/local
+
+for arg in "$@"; do
+  if [ "$arg" = --ttyname ]; then
+    exec "$BREW/bin/pinentry-tty" "$@"
+  fi
+done
+
+echo "pinentry-auto: no terminal, so the rbw prompt is on the server's screen;" \
+  "run \`rbw unlock\` in a terminal first" >&2
+# alarm survives exec, so SIGALRM ends pinentry-mac and rbw sees it cancel.
+exec /usr/bin/perl -e 'alarm shift; exec @ARGV or die "exec: $!\n"' \
+  "${PINENTRY_AUTO_TIMEOUT:-120}" "$BREW/bin/pinentry-mac" "$@"
