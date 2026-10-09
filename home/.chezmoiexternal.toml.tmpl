@@ -10,10 +10,12 @@ exact = true
 stripComponents = 1
 refreshPeriod = "168h"
 
+# Cloned once, like karabiner: ~/nvim is a working checkout you edit, commit
+# and pull yourself. With a refreshPeriod chezmoi ran `git pull --rebase`
+# weekly, which fails as soon as the checkout has local edits (lazy-lock.json).
 ["nvim"]
 type = "git-repo"
 url = "https://github.com/mehrad-meraji/nvim"
-refreshPeriod = "168h"
 
 
 # Projects: cloned on a new machine, never pulled afterwards (no refreshPeriod).

@@ -11,6 +11,7 @@
 {{- /* Machines without Bitwarden (work, servers): skip secret-backed files
        instead of failing the whole apply. */}}
 {{ if not .hasSecrets }}
+Projects
 .git-credentials
 .ssh/key_age
 .ssh/zippy-apple

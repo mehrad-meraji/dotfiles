@@ -31,6 +31,15 @@ This is about the open web only. Keep using Grep/Glob for local files.
 - Before making one, check the folder is ignored: `git check-ignore -q .worktrees/x`. If not, add the folder to `.git/info/exclude`. Do not commit a `.gitignore` change for this.
 - When the branch is merged or dropped, remove the worktree with `git worktree remove`. Save uncommitted work first (commit or `git stash`).
 
+## Project docs
+
+**Specs, plans and decisions live in the repo. Ideas live in the vault.**
+
+- Specs go in `<repo>/docs/specs/YYYY-MM-DD-slug.md`, plans in `<repo>/docs/plans/`, decisions in `<repo>/docs/decisions.md`. This overrides the superpowers default of `docs/superpowers/specs` and `docs/superpowers/plans`.
+- Ideas and research go in the vault at `Projects/<repo-name>/ideas/`, never in the repo.
+- The vault folder has a `docs` symlink to `<repo>/docs`, made by `proj fix <name> --write`. Never replace it with a real folder.
+- Full rules: the "Vault conventions" section of `Projects/AGENTS.md` in the vault.
+
 ## Obsidian vault
 
 Project notes live at:
@@ -43,7 +52,7 @@ One folder per project. `Projects.md` is the **master index** — it maps every 
 
 Keep `Projects.md` current. Whenever a project is created, archived, renamed, or changes state, update its row there and bump `updated:` in the frontmatter. Archived repos move to the "Archived / superseded" section rather than being deleted. Do not start a second project list — `Projects.md` is the only one.
 
-"Document X" means write a markdown note in that project's vault folder, not in the code repo.
+"Document X" means write a markdown note in that project's vault folder (main note or `ideas/`), not in the code repo. Specs, plans and decisions are the exception: see "Project docs" above.
 
 ## Maintain 
 
