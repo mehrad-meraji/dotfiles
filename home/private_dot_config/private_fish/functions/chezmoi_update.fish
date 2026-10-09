@@ -7,6 +7,9 @@ function chezmoi_update
         chezmoi git -- add home/dot_claude
         and chezmoi git -- commit -q -m "chore: re-add Claude memory, CLAUDE.md and skills"
     end
-    chezmoi update -R
+    # No -R (--refresh-externals): it forces a pull of every external, including
+    # ~/nvim, which is clone-once because it is a working checkout. tpm and the
+    # tmux theme refresh weekly on their own.
+    chezmoi update
     source $XDG_CONFIG_HOME/fish/config.fish
 end
