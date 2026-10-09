@@ -1,0 +1,180 @@
+# Repos cloned into ~/Projects on a new machine, once, by
+# .chezmoiscripts/darwin/run_onchange_after_20_clone-projects.sh.tmpl.
+# Never pulled or reconciled afterwards: they are your working checkouts.
+# Removed on purpose: penpot, searxng (upstream clones), mmr-web (work org).
+
+[[projects]]
+name = "BredinsBest"
+url = "https://github.com/mehrad-meraji/BredinsBest.git"
+
+[[projects]]
+name = "DC_Project"
+url = "https://github.com/mehrad-meraji/DC_Project.git"
+
+[[projects]]
+name = "GPX Video"
+url = "https://github.com/mehrad-meraji/gpx-video.git"
+
+[[projects]]
+name = "OAC"
+url = "https://github.com/mehrad-meraji/oac.git"
+
+[[projects]]
+name = "alacritas-research"
+url = "https://github.com/mehrad-meraji/alacritas-research.git"
+
+[[projects]]
+name = "berlin-shelter-project"
+url = "https://github.com/mehrad-meraji/berlin-shelter-project.git"
+
+[[projects]]
+name = "blender-mcp-addon"
+url = "https://github.com/mehrad-meraji/blender-mcp-addon.git"
+
+[[projects]]
+name = "bosun"
+url = "https://github.com/mehrad-meraji/bosun.git"
+
+[[projects]]
+name = "chess-project"
+url = "https://github.com/mehrad-meraji/chess-project.git"
+
+[[projects]]
+name = "command-centre-infra"
+url = "https://github.com/SOOPERCOOLER/command-centre-infra.git"
+
+[[projects]]
+name = "command-centre"
+url = "https://github.com/SOOPERCOOLER/command-centre.git"
+
+[[projects]]
+name = "csb"
+url = "https://github.com/mehrad-meraji/cbox.git"
+
+[[projects]]
+name = "cups-of-coffee"
+url = "https://github.com/mehrad-meraji/cups-of-coffee.git"
+
+[[projects]]
+name = "diablo-clone"
+url = "https://github.com/mehrad-meraji/wyrd.git"
+
+[[projects]]
+name = "digital-exhibit-website"
+url = "https://github.com/mehrad-meraji/digital-exhibit-test.git"
+
+[[projects]]
+name = "forage"
+url = "https://github.com/mehrad-meraji/forage.git"
+
+[[projects]]
+name = "fuckdougford"
+url = "https://github.com/mehrad-meraji/provincial-receipts.git"
+
+[[projects]]
+name = "glean"
+url = "https://github.com/mehrad-meraji/glean.git"
+
+[[projects]]
+name = "hearth"
+url = "https://github.com/mehrad-meraji/hearth.git"
+
+[[projects]]
+name = "historytrail"
+url = "https://github.com/chinatownclt/historytrail.git"
+
+[[projects]]
+name = "home-lab-infra"
+url = "https://github.com/mehrad-meraji/home-lab-infra.git"
+
+[[projects]]
+name = "hot-glue"
+url = "https://github.com/SOOPERCOOLER/hot-glue.git"
+
+[[projects]]
+name = "jeefi-releases"
+url = "https://github.com/mehrad-meraji/jeefi-releases.git"
+
+[[projects]]
+name = "jeefi"
+url = "https://github.com/mehrad-meraji/jeefi.git"
+
+[[projects]]
+name = "magpie"
+url = "https://github.com/mehrad-meraji/magpie.git"
+
+[[projects]]
+name = "mealbowl"
+url = "https://github.com/mehrad-meraji/mealbowl.git"
+
+[[projects]]
+name = "meh-labs-site"
+url = "https://github.com/mehrad-meraji/meh-labs-site.git"
+
+[[projects]]
+name = "patina"
+url = "https://github.com/mehrad-meraji/patina.git"
+
+[[projects]]
+name = "people-project"
+url = "https://github.com/mehrad-meraji/people-project.git"
+
+[[projects]]
+name = "petrax"
+url = "https://github.com/mehrad-meraji/petrax.git"
+
+[[projects]]
+name = "petrihub"
+url = "https://github.com/mehrad-meraji/petrihub.git"
+
+[[projects]]
+name = "polimon"
+url = "https://github.com/mehrad-meraji/polimon.git"
+
+[[projects]]
+name = "running-tools"
+url = "https://github.com/mehrad-meraji/running-tools.git"
+
+[[projects]]
+name = "running-trail-map"
+url = "https://github.com/mehrad-meraji/running-trail-map.git"
+
+[[projects]]
+name = "sentinel"
+url = "https://github.com/mehrad-meraji/sentinel.git"
+
+[[projects]]
+name = "simcity"
+url = "https://github.com/mehrad-meraji/simcity.git"
+
+[[projects]]
+name = "sooperarrt"
+url = "https://github.com/SOOPERCOOLER/sooperarrt.git"
+
+[[projects]]
+name = "soopercooler-site"
+url = "https://github.com/mehrad-meraji/soopercooler-site.git"
+
+[[projects]]
+name = "sooperpowers-cms"
+url = "https://github.com/SOOPERCOOLER/sooperpowers-cms.git"
+
+[[projects]]
+name = "strength-app"
+url = "https://github.com/mehrad-meraji/strength-app.git"
+
+[[projects]]
+name = "taskscape-app"
+url = "https://github.com/mehrad-meraji/taskscape-app.git"
+
+[[projects]]
+name = "taskscape-laravel"
+url = "https://github.com/mehrad-meraji/taskscape-laravel.git"
+
+[[projects]]
+name = "tessera"
+url = "https://github.com/mehrad-meraji/tessera.git"
+
+[[projects]]
+name = "village-console"
+url = "https://github.com/mehrad-meraji/village-console.git"

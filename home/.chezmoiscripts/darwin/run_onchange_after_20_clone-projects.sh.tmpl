@@ -1,0 +1,29 @@
+{{ if .hasSecrets -}}
+#!/bin/bash
+# Clones the repos in .chezmoidata/projects.toml into ~/Projects, once per
+# machine. These used to be chezmoi externals, which chezmoi reconciles on
+# every apply: it re-cloned projects you had moved or deleted, and prompted
+# whenever a checkout's folder mode changed.
+#
+# Runs only until the marker exists. To clone missing projects again (say,
+# after adding one to the list), delete the marker and run chezmoi apply.
+#
+# projects list hash: {{ include ".chezmoidata/projects.toml" | sha256sum }}
+set -u
+
+marker="$HOME/.local/state/chezmoi/projects-cloned"
+[ -f "$marker" ] && exit 0
+
+mkdir -p "$HOME/Projects" "$(dirname "$marker")"
+failed=0
+{{- range .projects }}
+if [ ! -e "$HOME/Projects/{{ .name }}" ]; then
+  echo "==> cloning {{ .name }}"
+  GIT_TERMINAL_PROMPT=0 git clone -q {{ .url | quote }} "$HOME/Projects/{{ .name }}" || failed=1
+fi
+{{- end }}
+
+# Keep retrying on later applies until every clone has succeeded once.
+[ "$failed" = 0 ] && touch "$marker" || echo "!! some projects failed to clone; the next apply retries them" >&2
+exit 0
+{{ end -}}
