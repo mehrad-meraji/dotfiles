@@ -3,6 +3,13 @@ type = "git-repo"
 url = "https://github.com/tmux-plugins/tpm"
 refreshPeriod = "168h"
 
+# ~/.vimrc sets rtp+=~/.vim/bundle/Vundle.vim; without this clone vim errors on
+# every `call vundle#begin()` / `Plugin ...` line.
+[".vim/bundle/Vundle.vim"]
+type = "git-repo"
+url = "https://github.com/VundleVim/Vundle.vim"
+refreshPeriod = "168h"
+
 [".config/tmux/plugins/catppuccin"]
 type = "archive"
 url = "https://github.com/catppuccin/tmux/archive/refs/tags/v2.1.2.tar.gz"

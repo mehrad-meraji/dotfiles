@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# vimrc hash: {{ include (joinPath .chezmoi.sourceDir "dot_vimrc") | sha256sum }}
+# Re-runs whenever the Plugin list in ~/.vimrc changes. Vundle itself is a
+# chezmoi external (.vim/bundle/Vundle.vim), so it is already on disk here.
+if [[ -d $HOME/.vim/bundle/Vundle.vim ]]; then
+    vim -es -u "$HOME/.vimrc" -i NONE -c PluginInstall -c qa
+fi
