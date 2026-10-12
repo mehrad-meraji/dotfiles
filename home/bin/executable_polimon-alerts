@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Print PoliMon alerts without exposing the API token to the caller.
 # Usage: polimon-alerts YYYY-MM-DD [source]   e.g. polimon-alerts 2026-09-24 ontario_ero
+#
+# polimon.meh-labs.ca is behind Cloudflare Access, which wants a service token
+# as well as the bearer token. POLIMON_ACCESS_CLIENT_ID and
+# POLIMON_ACCESS_CLIENT_SECRET are read from the environment, else from
+# ~/Projects/polimon/.env. Neither set: the request goes as it always did, so
+# this works before Access is switched on. Only one set: an error.
 set -euo pipefail
 
 since="${1:?usage: polimon-alerts YYYY-MM-DD [source]}"
@@ -8,23 +14,59 @@ since="${1:?usage: polimon-alerts YYYY-MM-DD [source]}"
 source_arg="${2:-}"
 [[ -z "$source_arg" || "$source_arg" =~ ^[a-z0-9_]+$ ]] || { echo "bad source: $source_arg" >&2; exit 2; }
 
-# ponytail: tries the likely variable names; add yours here if it differs
-token="$(set +u; . "$HOME/Projects/polimon/.env" >/dev/null 2>&1
-  t="${POLIMON_TOKEN:-${POLIMON_TOKENS:-${POLIMON_API_TOKEN:-${API_TOKEN:-${TOKEN:-}}}}}"; printf '%s' "${t%%,*}")"
-[[ -n "$token" ]] || { echo "no token found in ~/Projects/polimon/.env (tried POLIMON_TOKEN, POLIMON_TOKENS, POLIMON_API_TOKEN, API_TOKEN, TOKEN)" >&2; exit 1; }
+# The environment wins over the file, so one run can use another token.
+env_id="${POLIMON_ACCESS_CLIENT_ID:-}"
+env_secret="${POLIMON_ACCESS_CLIENT_SECRET:-}"
 
-url="https://polimon.meh-labs.ca/alerts.json?since=$since&limit=500"
+# ponytail: tries the likely variable names; add yours here if it differs
+# One value per line: token, access client id, access client secret.
+creds="$(set +u; . "$HOME/Projects/polimon/.env" >/dev/null 2>&1
+  t="${POLIMON_TOKEN:-${POLIMON_TOKENS:-${POLIMON_API_TOKEN:-${API_TOKEN:-${TOKEN:-}}}}}"
+  printf '%s\n%s\n%s\n' "${t%%,*}" "${POLIMON_ACCESS_CLIENT_ID:-}" "${POLIMON_ACCESS_CLIENT_SECRET:-}")"
+token="$(sed -n 1p <<<"$creds")"
+access_id="${env_id:-$(sed -n 2p <<<"$creds")}"
+access_secret="${env_secret:-$(sed -n 3p <<<"$creds")}"
+
+[[ -n "$token" ]] || { echo "no token found in ~/Projects/polimon/.env (tried POLIMON_TOKEN, POLIMON_TOKENS, POLIMON_API_TOKEN, API_TOKEN, TOKEN)" >&2; exit 1; }
+if [[ -n "$access_id" && -z "$access_secret" ]]; then
+  echo "POLIMON_ACCESS_CLIENT_ID is set but POLIMON_ACCESS_CLIENT_SECRET is not" >&2; exit 1
+elif [[ -z "$access_id" && -n "$access_secret" ]]; then
+  echo "POLIMON_ACCESS_CLIENT_SECRET is set but POLIMON_ACCESS_CLIENT_ID is not" >&2; exit 1
+fi
+
+# POLIMON_URL is for testing against a local stand-in.
+url="${POLIMON_URL:-https://polimon.meh-labs.ca}/alerts.json?since=$since&limit=500"
 [[ -n "$source_arg" ]] && url="$url&source=$source_arg"
 
-# ponytail: token goes via stdin config, so it never shows in ps or output
-printf 'header = "Authorization: Bearer %s"\n' "$token" |
-  curl -sS --fail-with-body -K - "$url" |
-  python3 -c '
+# ponytail: credentials go via stdin config, so they never show in ps or output
+cfg="$(printf 'header = "Authorization: Bearer %s"' "$token")"
+if [[ -n "$access_id" ]]; then
+  cfg+=$'\n'"$(printf 'header = "CF-Access-Client-Id: %s"\nheader = "CF-Access-Client-Secret: %s"' "$access_id" "$access_secret")"
+fi
+
+# No -L: Access answers an unrecognised request with a redirect to its login
+# page, and following it would hand back HTML as if it were alerts.
+out="$(printf '%s\n' "$cfg" | curl -sS -K - -w $'\n%{http_code}' "$url")" \
+  || { echo "request to PoliMon failed" >&2; exit 1; }
+code="${out##*$'\n'}"
+body="${out%$'\n'*}"
+
+case "$code" in
+  200) ;;
+  30[0-9]|403)
+    echo "PoliMon refused the request ($code). Cloudflare Access? Set POLIMON_ACCESS_CLIENT_ID and POLIMON_ACCESS_CLIENT_SECRET (environment or ~/Projects/polimon/.env)" >&2
+    exit 1 ;;
+  *)
+    echo "PoliMon returned $code: ${body:0:200}" >&2
+    exit 1 ;;
+esac
+
+printf '%s' "$body" | python3 -c '
 import json, sys
 d = json.load(sys.stdin)
 items = d if isinstance(d, list) else next((d[k] for k in ("alerts", "data", "items", "results") if isinstance(d.get(k), list)), [])
 print(f"{len(items)} alerts")
 for a in items:
-    date = a.get("published_at") or a.get("date") or a.get("created_at") or ""
+    date = a.get("fired_at") or a.get("published_at") or a.get("date") or a.get("created_at") or ""
     print("\t".join([str(a.get("source","")), str(date), (a.get("title") or "")[:160], str(a.get("url",""))]))
 '
