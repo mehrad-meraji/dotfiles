@@ -65,6 +65,8 @@ brews = [
   "railway",
   "rbw",
   "rclone",
+  # Restore drills for the home-server backups (home-server-services repo).
+  "restic",
   "rustup",
   "xcodegen",
   "yt-dlp",
@@ -113,6 +115,10 @@ brews = [
   # BuildKit. Without it docker falls back to the legacy builder, which fails
   # on Dockerfiles using `COPY --chmod` (magpie) and other modern syntax.
   "docker-buildx",
+  "forgejo-runner",
+  # JavaScript actions (checkout, setup-*) in host-mode Forgejo jobs need node on PATH.
+  # The GitHub runners bundled their own; the Forgejo runner does not.
+  "node",
   # rbw backs `hasVault`, which renders /etc/sentinel.conf. pinentry-mac is
   # needed with it: the TTY pinentries fail with "Inappropriate ioctl for
   # device" when apply runs outside a terminal, so unlocking never succeeds.
