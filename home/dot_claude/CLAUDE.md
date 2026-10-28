@@ -57,3 +57,11 @@ Keep `Projects.md` current. Whenever a project is created, archived, renamed, or
 ## Maintain 
 
 ~/code/papercuts.md, a global log shared by all my Claude sessions of anything that slowed down development. When you lose time to one mid-session, append date · symptom · fix · project. Check this file first when tooling fails mysteriously.
+
+## Home server
+
+**The home server is a separate Mac: `home-server` on the tailnet (2023 M3 Max MacBook Pro). It is not the laptop you run on unless `scutil --get ComputerName` says `home-server`.**
+
+- Reach it with `ssh home-server bash -s <<'EOF' ... EOF`. Its login shell is fish, so never pass bash syntax as an ssh argument.
+- Its Docker stacks live in `~/Services/<stack>` on the server, under colima.
+- Full profile (stacks, ports, tunnels, runners, backups): the `home-server` skill at `~/.claude/skills/home-server/SKILL.md`. Run `~/.claude/skills/home-server/refresh.sh` for today's live state.
