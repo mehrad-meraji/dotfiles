@@ -25,6 +25,6 @@ d = json.load(sys.stdin)
 items = d if isinstance(d, list) else next((d[k] for k in ("alerts", "data", "items", "results") if isinstance(d.get(k), list)), [])
 print(f"{len(items)} alerts")
 for a in items:
-    date = a.get("published_at") or a.get("date") or a.get("created_at") or ""
+    date = a.get("fired_at") or a.get("published_at") or a.get("date") or a.get("created_at") or ""
     print("\t".join([str(a.get("source","")), str(date), (a.get("title") or "")[:160], str(a.get("url",""))]))
 '
