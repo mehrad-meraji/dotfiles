@@ -68,6 +68,8 @@ brews = [
   # Restore drills for the home-server backups (home-server-services repo).
   "restic",
   "rustup",
+  # Forgejo CLI (PRs, issues, Actions) so Claude does not need the browser.
+  "tea",
   "xcodegen",
   "yt-dlp",
   "zellij",

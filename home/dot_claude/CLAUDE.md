@@ -65,3 +65,7 @@ Keep `Projects.md` current. Whenever a project is created, archived, renamed, or
 - Reach it with `ssh home-server bash -s <<'EOF' ... EOF`. Its login shell is fish, so never pass bash syntax as an ssh argument.
 - Its Docker stacks live in `~/Services/<stack>` on the server, under colima.
 - Full profile (stacks, ports, tunnels, runners, backups): the `home-server` skill at `~/.claude/skills/home-server/SKILL.md`. Run `~/.claude/skills/home-server/refresh.sh` for today's live state.
+
+## Forgejo PRs and issues
+
+**When `origin` is on Forgejo (`home-server.tail0c1e4d.ts.net`), use `tea`, not `gh` or the browser,** for PRs, issues, reviews and CI runs. Use `--output json` when you will parse the result. Command cheat sheet and known gaps: the "Code hosting and CI" section of the `home-server` skill.

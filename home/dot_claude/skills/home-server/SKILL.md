@@ -70,7 +70,7 @@ Every stack lives in `~/Services/<dir>/` on the server. Some directory names dif
 | sooperarrt | `art-logue/docker-compose.prod.yml` | none | tunnel |
 | strength-app | `strength-app/docker-compose.prod.yml` | 127.0.0.1:8097 | tailnet only: `https://home-server.tail0c1e4d.ts.net:8443` |
 | taskscape-backend | `taskscape-backend/docker-compose.yml` | none | `taskscape-app.meh-labs.ca` |
-| taskscape-laravel | `taskscape-laravel/docker-compose.yml` | 0.0.0.0:8100 (app), 0.0.0.0:8180 (Reverb) | `http://home-server:8100` (has a tunnel too) |
+| taskscape-laravel | `taskscape-laravel/docker-compose.yml` | 0.0.0.0:8100 (app), 0.0.0.0:8180 (Reverb) | `https://taskscape.ca` (Cloudflare Tunnel, public login) and `http://home-server:8100` |
 
 The public hostname column is **not complete**. Tunnels are token-based, so their hostname rules live in the Cloudflare dashboard (Zero Trust, Networks, Tunnels), not in files on the server.
 
@@ -80,6 +80,12 @@ Archived stacks: `~/Services/_archive/`.
 
 - **Forgejo** is the main git host for most active repos (`origin`). GitHub repos are mirrors. Container registry: `home-server.tail0c1e4d.ts.net/mehrad/<image>`.
 - Forgejo sign-in is Pocket ID only. Break-glass steps: `home-server-services/docs/decisions.md`.
+- Forgejo version: 17.0.1 since 2026-11-11 (pinned by `FORGEJO_TAG` in `home-server-services/stacks/forgejo/.env`).
+- **Use `tea` (Homebrew) for Forgejo PRs, issues and Actions, not the browser and not `gh`.** Login `home` is the default (token `claude-tea`; scopes `write:repository`, `write:issue`, `read:user`, `read:organization`). Inside a clone, `tea` finds the repo from the `origin` remote; elsewhere pass `--repo mehrad/<name>`.
+  - PRs: `tea pr create --title T --description-file f.md --base main --head <branch>`, `tea pr list --output json`, `tea comment <n> "text"`, `tea pr approve|reject <n>`, `tea pr merge --style squash|merge|rebase <n>`.
+  - CI: `tea actions runs list --output json`. `tea actions runs logs` is broken on Forgejo, so for logs use `tea api repos/<o>/<r>/actions/runs/<run>/jobs | jq '.[].id'` and then `tea api repos/<o>/<r>/actions/jobs/<job>/logs`.
+  - Anything else: `tea api <path>` (the path is relative to `/api/v1`).
+  - The token cannot create or delete repos (that needs `write:user` or admin). Ask the user for those.
 - Forgejo runner `home-server` (LaunchAgent `com.mehrad.forgejo-runner`), one job at a time. Labels: `home-server`, `self-hosted`, `macOS`, `ARM64`, plus Docker labels `ubuntu-latest`, `ubuntu-24.04`, `ubuntu-24.04-arm`, `ubuntu-22.04`. CI job containers are named `FORGEJO-ACTIONS-TASK-*`.
 - On Forgejo, use `https://data.forgejo.org/forgejo/upload-artifact@v4` (and `download-artifact`), not the GitHub `actions/*-artifact@v4`.
 - GitHub Actions runners (LaunchAgents `actions.runner.*`) for: `mehrad-meraji/forage`, `hot-glue`, `provincial-receipts` (fuckdougford), `sentinel`, `taskscape-laravel`, and the `SOOPERCOOLER` org.
